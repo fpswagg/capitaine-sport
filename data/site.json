@@ -1,0 +1,22 @@
+{
+  "brand": "Capitaine Sport",
+  "tagline": "plus qu'un maillot, une attitude",
+  "founder": "Bryan Fongang",
+  "contactLabel": "+237 696 57 64 77",
+  "whatsappNumber": "237696576477",
+  "hero": {
+    "eyebrow": "Maillots de football sélectionnés avec soin",
+    "title": "Les maillots qui méritent ton respect",
+    "highlight": "ton respect",
+    "description": "Découvre nos maillots pro disponibles à 10 000 FCFA et commande ton modèle préféré directement sur WhatsApp.",
+    "primaryCta": "Voir les maillots",
+    "secondaryCta": "Commander sur WhatsApp"
+  },
+  "marqueeItems": [
+    "Capitaine Sport",
+    "Plus qu'un maillot",
+    "Une attitude",
+    "Qualité 100% satisfaction",
+    "Commande WhatsApp"
+  ]
+}
