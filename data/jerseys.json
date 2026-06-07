@@ -68,13 +68,13 @@
   {
     "slug": "barcelona",
     "team": "FC Barcelone",
-    "name": "Maillot Pro Domicile",
+    "name": "Maillot Pro Avant-match 2",
     "category": "Domicile",
     "version": "Pro",
     "competition": "Liga",
     "price": 10000,
     "imageUrl": "/jerseys/barcelona.jpeg",
-    "summary": "Maillot pro FC Barcelone, classé en domicile par défaut."
+    "summary": "Maillot pro avant-match 2 FC Barcelone, disponible à 10 000 FCFA."
   },
   {
     "slug": "bayern-ext",
