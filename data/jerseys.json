@@ -1,25 +1,14 @@
 [
   {
-    "slug": "algeria-pro",
-    "team": "Algérie",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
+    "slug": "arsenal-3",
+    "team": "Arsenal",
+    "name": "Maillot Pro Troisième",
+    "category": "Extérieur",
     "version": "Pro",
-    "competition": "Sélection nationale",
+    "competition": "Premier League",
     "price": 10000,
-    "imageUrl": "/jerseys/algeria-pro.jpeg",
-    "summary": "Maillot pro domicile Algérie, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "argentina-collector",
-    "team": "Argentine",
-    "name": "Maillot Collector",
-    "category": "Domicile",
-    "version": "Collector",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/argentina-collector.jpeg",
-    "summary": "Maillot collector Argentine, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/arsenal-3.jpeg",
+    "summary": "Maillot pro troisième jaune Arsenal, disponible à 10 000 FCFA."
   },
   {
     "slug": "arsenal-ext",
@@ -30,51 +19,51 @@
     "competition": "Premier League",
     "price": 10000,
     "imageUrl": "/jerseys/arsenal-ext.jpeg",
-    "summary": "Maillot pro extérieur Arsenal, disponible à 10 000 FCFA."
+    "summary": "Maillot pro extérieur bleu marine Arsenal, disponible à 10 000 FCFA."
   },
   {
-    "slug": "arsenal-int",
-    "team": "Arsenal",
+    "slug": "aston-villa",
+    "team": "Aston Villa",
     "name": "Maillot Pro Domicile",
     "category": "Domicile",
     "version": "Pro",
     "competition": "Premier League",
     "price": 10000,
-    "imageUrl": "/jerseys/arsenal-int.jpeg",
-    "summary": "Maillot pro domicile Arsenal, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/aston-villa.jpeg",
+    "summary": "Maillot pro domicile Aston Villa bordeaux et bleu ciel, disponible à 10 000 FCFA."
   },
   {
-    "slug": "arsenal",
-    "team": "Arsenal",
+    "slug": "atletico-madrid",
+    "team": "Atlético de Madrid",
     "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Premier League",
-    "price": 10000,
-    "imageUrl": "/jerseys/arsenal.jpeg",
-    "summary": "Maillot pro Arsenal, classé en domicile par défaut."
-  },
-  {
-    "slug": "barcelona-before-match",
-    "team": "FC Barcelone",
-    "name": "Maillot Pro Avant-match Domicile",
     "category": "Domicile",
     "version": "Pro",
     "competition": "Liga",
     "price": 10000,
-    "imageUrl": "/jerseys/barcelona-before-match.jpeg",
-    "summary": "Maillot pro Avant-match Domicile FC Barcelone, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/athletico.jpeg",
+    "summary": "Maillot pro domicile rayé rouge et blanc Atlético de Madrid, disponible à 10 000 FCFA."
   },
   {
-    "slug": "barcelona",
+    "slug": "barcelona-ext",
     "team": "FC Barcelone",
-    "name": "Maillot Pro Avant-match Extérieur",
+    "name": "Maillot Pro Extérieur",
     "category": "Extérieur",
     "version": "Pro",
     "competition": "Liga",
     "price": 10000,
+    "imageUrl": "/jerseys/barcelona-ext.jpeg",
+    "summary": "Maillot pro extérieur noir et violet FC Barcelone, disponible à 10 000 FCFA."
+  },
+  {
+    "slug": "barcelona",
+    "team": "FC Barcelone",
+    "name": "Maillot Pro Domicile",
+    "category": "Domicile",
+    "version": "Pro",
+    "competition": "Liga",
+    "price": 10000,
     "imageUrl": "/jerseys/barcelona.jpeg",
-    "summary": "Maillot pro Avant-match Extérieur FC Barcelone, disponible à 10 000 FCFA."
+    "summary": "Maillot pro domicile blaugrana FC Barcelone, disponible à 10 000 FCFA."
   },
   {
     "slug": "bayern-ext",
@@ -85,194 +74,139 @@
     "competition": "Bundesliga",
     "price": 10000,
     "imageUrl": "/jerseys/bayern-ext.jpeg",
-    "summary": "Maillot pro extérieur Bayern Munich, disponible à 10 000 FCFA."
+    "summary": "Maillot pro extérieur blanc Bayern Munich, disponible à 10 000 FCFA."
   },
   {
-    "slug": "bayern-int",
+    "slug": "bayern",
     "team": "Bayern Munich",
     "name": "Maillot Pro Domicile",
     "category": "Domicile",
     "version": "Pro",
     "competition": "Bundesliga",
     "price": 10000,
-    "imageUrl": "/jerseys/bayern-int.jpeg",
-    "summary": "Maillot pro domicile Bayern Munich, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/bayern.jpeg",
+    "summary": "Maillot pro domicile rouge Bayern Munich, disponible à 10 000 FCFA."
   },
   {
-    "slug": "belgium-ext",
-    "team": "Belgique",
+    "slug": "chelsea-ext",
+    "team": "Chelsea",
     "name": "Maillot Pro Extérieur",
     "category": "Extérieur",
     "version": "Pro",
-    "competition": "Sélection nationale",
+    "competition": "Premier League",
     "price": 10000,
-    "imageUrl": "/jerseys/belgium-ext.jpeg",
-    "summary": "Maillot pro extérieur Belgique, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/chelsea-ext.jpeg",
+    "summary": "Maillot pro extérieur noir et jaune Chelsea, disponible à 10 000 FCFA."
   },
   {
-    "slug": "belgium",
-    "team": "Belgique",
+    "slug": "chelsea",
+    "team": "Chelsea",
     "name": "Maillot Pro Domicile",
     "category": "Domicile",
     "version": "Pro",
-    "competition": "Sélection nationale",
+    "competition": "Premier League",
     "price": 10000,
-    "imageUrl": "/jerseys/belgium.jpeg",
-    "summary": "Maillot pro Belgique, classé en domicile par défaut."
+    "imageUrl": "/jerseys/chelsea.jpeg",
+    "summary": "Maillot pro domicile bleu Chelsea, disponible à 10 000 FCFA."
   },
   {
-    "slug": "brasil-pro-ext",
-    "team": "Brésil",
+    "slug": "dortmund",
+    "team": "Borussia Dortmund",
+    "name": "Maillot Pro Domicile",
+    "category": "Domicile",
+    "version": "Pro",
+    "competition": "Bundesliga",
+    "price": 10000,
+    "imageUrl": "/jerseys/dortmund.jpeg",
+    "summary": "Maillot pro domicile jaune et noir Borussia Dortmund, disponible à 10 000 FCFA."
+  },
+  {
+    "slug": "juventus",
+    "team": "Juventus",
+    "name": "Maillot Pro Domicile",
+    "category": "Domicile",
+    "version": "Pro",
+    "competition": "Serie A",
+    "price": 10000,
+    "imageUrl": "/jerseys/juventus.jpeg",
+    "summary": "Maillot pro domicile rayé blanc et noir Juventus, disponible à 10 000 FCFA."
+  },
+  {
+    "slug": "liverpool",
+    "team": "Liverpool",
+    "name": "Maillot Pro Domicile",
+    "category": "Domicile",
+    "version": "Pro",
+    "competition": "Premier League",
+    "price": 10000,
+    "imageUrl": "/jerseys/liverpool.jpeg",
+    "summary": "Maillot pro domicile rouge Liverpool, disponible à 10 000 FCFA."
+  },
+  {
+    "slug": "man-city-3",
+    "team": "Manchester City",
+    "name": "Maillot Pro Troisième",
+    "category": "Extérieur",
+    "version": "Pro",
+    "competition": "Premier League",
+    "price": 10000,
+    "imageUrl": "/jerseys/man-city-3.jpeg",
+    "summary": "Maillot pro troisième noir et or Manchester City, disponible à 10 000 FCFA."
+  },
+  {
+    "slug": "man-city-ext",
+    "team": "Manchester City",
     "name": "Maillot Pro Extérieur",
     "category": "Extérieur",
     "version": "Pro",
-    "competition": "Sélection nationale",
+    "competition": "Premier League",
     "price": 10000,
-    "imageUrl": "/jerseys/brasil-pro-ext.jpeg",
-    "summary": "Maillot pro extérieur Brésil, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/man-city-ext.jpeg",
+    "summary": "Maillot pro extérieur blanc et bleu Manchester City, disponible à 10 000 FCFA."
   },
   {
-    "slug": "brazil-int",
-    "team": "Brésil",
+    "slug": "man-city",
+    "team": "Manchester City",
     "name": "Maillot Pro Domicile",
     "category": "Domicile",
     "version": "Pro",
-    "competition": "Sélection nationale",
+    "competition": "Premier League",
     "price": 10000,
-    "imageUrl": "/jerseys/brazil-int.jpeg",
-    "summary": "Maillot pro domicile Brésil, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/man-city.jpeg",
+    "summary": "Maillot pro domicile bleu ciel Manchester City, disponible à 10 000 FCFA."
   },
   {
-    "slug": "canada-ext",
-    "team": "Canada",
+    "slug": "man-united-3",
+    "team": "Manchester United",
+    "name": "Maillot Pro Troisième",
+    "category": "Extérieur",
+    "version": "Pro",
+    "competition": "Premier League",
+    "price": 10000,
+    "imageUrl": "/jerseys/man-united-3.jpeg",
+    "summary": "Maillot pro troisième blanc cassé Manchester United, disponible à 10 000 FCFA."
+  },
+  {
+    "slug": "man-united-ext",
+    "team": "Manchester United",
     "name": "Maillot Pro Extérieur",
     "category": "Extérieur",
     "version": "Pro",
-    "competition": "Sélection nationale",
+    "competition": "Premier League",
     "price": 10000,
-    "imageUrl": "/jerseys/canada-ext.jpeg",
-    "summary": "Maillot pro extérieur Canada, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/man-united-ext.jpeg",
+    "summary": "Maillot pro extérieur bleu Manchester United, disponible à 10 000 FCFA."
   },
   {
-    "slug": "canada-int",
-    "team": "Canada",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/canada-int.jpeg",
-    "summary": "Maillot pro domicile Canada, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "cap-vert-pro",
-    "team": "Cap-Vert",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/cap-vert-pro.jpeg",
-    "summary": "Maillot pro domicile Cap-Vert, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "congo",
-    "team": "Congo",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/congo.jpeg",
-    "summary": "Maillot pro Congo, classé en domicile par défaut."
-  },
-  {
-    "slug": "england-int",
-    "team": "Angleterre",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/england-int.jpeg",
-    "summary": "Maillot pro domicile Angleterre, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "france-ext",
-    "team": "France",
-    "name": "Maillot Pro Extérieur",
-    "category": "Extérieur",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/france-ext.jpeg",
-    "summary": "Maillot pro extérieur France, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "france-pro-int",
-    "team": "France",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/france-pro-int.jpeg",
-    "summary": "Maillot pro domicile France, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "germany-int",
-    "team": "Allemagne",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/germany-int.jpeg",
-    "summary": "Maillot pro domicile Allemagne, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "ivory-coast-ext",
-    "team": "Côte d'Ivoire",
-    "name": "Maillot Pro Extérieur",
-    "category": "Extérieur",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/ivory-coast-ext.jpeg",
-    "summary": "Maillot pro extérieur Côte d'Ivoire, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "ivory-coast-int",
-    "team": "Côte d'Ivoire",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/ivory-coast-int.jpeg",
-    "summary": "Maillot pro domicile Côte d'Ivoire, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "japan",
-    "team": "Japon",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/japan.jpeg",
-    "summary": "Maillot pro Japon, classé en domicile par défaut."
-  },
-  {
-    "slug": "manchester-united",
+    "slug": "man-united",
     "team": "Manchester United",
     "name": "Maillot Pro Domicile",
     "category": "Domicile",
     "version": "Pro",
     "competition": "Premier League",
     "price": 10000,
-    "imageUrl": "/jerseys/manchester-united.jpeg",
-    "summary": "Maillot pro Manchester United, classé en domicile par défaut."
+    "imageUrl": "/jerseys/man-united.jpeg",
+    "summary": "Maillot pro domicile rouge Manchester United, disponible à 10 000 FCFA."
   },
   {
     "slug": "marseille",
@@ -283,215 +217,116 @@
     "competition": "Ligue 1",
     "price": 10000,
     "imageUrl": "/jerseys/marseille.jpeg",
-    "summary": "Maillot pro Olympique de Marseille, classé en domicile par défaut."
+    "summary": "Maillot pro domicile blanc et bleu ciel Olympique de Marseille, disponible à 10 000 FCFA."
   },
   {
-    "slug": "mexico-int",
-    "team": "Mexique",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/mexico-int.jpeg",
-    "summary": "Maillot pro domicile Mexique, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "mexico-pro",
-    "team": "Mexique",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/mexico-pro.jpeg",
-    "summary": "Maillot pro domicile Mexique, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "morocco-pro-ext",
-    "team": "Maroc",
+    "slug": "milan-ac-ext",
+    "team": "AC Milan",
     "name": "Maillot Pro Extérieur",
     "category": "Extérieur",
     "version": "Pro",
-    "competition": "Sélection nationale",
+    "competition": "Serie A",
     "price": 10000,
-    "imageUrl": "/jerseys/morocco-pro-ext.jpeg",
-    "summary": "Maillot pro extérieur Maroc, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/milan-ac-ext.jpeg",
+    "summary": "Maillot pro extérieur blanc AC Milan, disponible à 10 000 FCFA."
   },
   {
-    "slug": "morocco-pro-int",
-    "team": "Maroc",
+    "slug": "milan-ac",
+    "team": "AC Milan",
     "name": "Maillot Pro Domicile",
     "category": "Domicile",
     "version": "Pro",
-    "competition": "Sélection nationale",
+    "competition": "Serie A",
     "price": 10000,
-    "imageUrl": "/jerseys/morocco-pro-int.jpeg",
-    "summary": "Maillot pro domicile Maroc, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/milan-ac.jpeg",
+    "summary": "Maillot pro domicile rouge et noir AC Milan, disponible à 10 000 FCFA."
   },
   {
-    "slug": "norvegia",
-    "team": "Norvège",
+    "slug": "newcastle",
+    "team": "Newcastle United",
     "name": "Maillot Pro Domicile",
     "category": "Domicile",
     "version": "Pro",
-    "competition": "Sélection nationale",
+    "competition": "Premier League",
     "price": 10000,
-    "imageUrl": "/jerseys/norvegia.jpeg",
-    "summary": "Maillot pro Norvège, classé en domicile par défaut."
+    "imageUrl": "/jerseys/new-castel.jpeg",
+    "summary": "Maillot pro domicile rayé blanc et noir Newcastle United, disponible à 10 000 FCFA."
   },
   {
-    "slug": "portugal-ext",
-    "team": "Portugal",
+    "slug": "psg-dior",
+    "team": "Paris Saint-Germain",
+    "name": "Maillot Collector Air Dior",
+    "category": "Domicile",
+    "version": "Collector",
+    "competition": "Ligue 1",
+    "price": 10000,
+    "imageUrl": "/jerseys/psg-dior.jpeg",
+    "summary": "Maillot collector Paris Saint-Germain Édition Spéciale Air Dior, disponible à 10 000 FCFA."
+  },
+  {
+    "slug": "psg-ext",
+    "team": "Paris Saint-Germain",
     "name": "Maillot Pro Extérieur",
     "category": "Extérieur",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/portugal-ext.jpeg",
-    "summary": "Maillot pro extérieur Portugal, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "portugal",
-    "team": "Portugal",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/portugal.jpeg",
-    "summary": "Maillot pro Portugal, classé en domicile par défaut."
-  },
-  {
-    "slug": "psg-int",
-    "team": "PSG",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
     "version": "Pro",
     "competition": "Ligue 1",
     "price": 10000,
-    "imageUrl": "/jerseys/psg-int.jpeg",
-    "summary": "Maillot pro domicile PSG, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/psg-ext.jpeg",
+    "summary": "Maillot pro extérieur blanc Paris Saint-Germain, disponible à 10 000 FCFA."
   },
   {
     "slug": "psg",
-    "team": "PSG",
+    "team": "Paris Saint-Germain",
     "name": "Maillot Pro Domicile",
     "category": "Domicile",
     "version": "Pro",
     "competition": "Ligue 1",
     "price": 10000,
     "imageUrl": "/jerseys/psg.jpeg",
-    "summary": "Maillot pro PSG, classé en domicile par défaut."
+    "summary": "Maillot pro domicile bleu Paris Saint-Germain, disponible à 10 000 FCFA."
   },
   {
-    "slug": "real-madrid-int",
+    "slug": "real-madrid-3",
+    "team": "Real Madrid",
+    "name": "Maillot Pro Troisième",
+    "category": "Extérieur",
+    "version": "Pro",
+    "competition": "Liga",
+    "price": 10000,
+    "imageUrl": "/jerseys/real-madrid-3.jpeg",
+    "summary": "Maillot pro troisième framboise Real Madrid, disponible à 10 000 FCFA."
+  },
+  {
+    "slug": "real-madrid-ext",
+    "team": "Real Madrid",
+    "name": "Maillot Pro Extérieur",
+    "category": "Extérieur",
+    "version": "Pro",
+    "competition": "Liga",
+    "price": 10000,
+    "imageUrl": "/jerseys/real-madrid-ext.jpeg",
+    "summary": "Maillot pro extérieur vert foncé Real Madrid, disponible à 10 000 FCFA."
+  },
+  {
+    "slug": "real-madrid",
     "team": "Real Madrid",
     "name": "Maillot Pro Domicile",
     "category": "Domicile",
     "version": "Pro",
     "competition": "Liga",
     "price": 10000,
-    "imageUrl": "/jerseys/real-madrid-int.jpeg",
-    "summary": "Maillot pro domicile Real Madrid, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/real-madrid.jpeg",
+    "summary": "Maillot pro domicile blanc Real Madrid, disponible à 10 000 FCFA."
   },
   {
-    "slug": "senegal-int",
-    "team": "Sénégal",
+    "slug": "tottenham",
+    "team": "Tottenham Hotspur",
     "name": "Maillot Pro Domicile",
     "category": "Domicile",
     "version": "Pro",
-    "competition": "Sélection nationale",
+    "competition": "Premier League",
     "price": 10000,
-    "imageUrl": "/jerseys/senegal-int.jpeg",
-    "summary": "Maillot pro domicile Sénégal, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "senegal-pro-ext",
-    "team": "Sénégal",
-    "name": "Maillot Pro Extérieur",
-    "category": "Extérieur",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/senegal-pro-ext.jpeg",
-    "summary": "Maillot pro extérieur Sénégal, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "south-africa-pro",
-    "team": "Afrique du Sud",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/south-africa-pro.jpeg",
-    "summary": "Maillot pro domicile Afrique du Sud, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "spain-int",
-    "team": "Espagne",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/spain-int.jpeg",
-    "summary": "Maillot pro domicile Espagne, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "spain-pro-ext",
-    "team": "Espagne",
-    "name": "Maillot Pro Extérieur",
-    "category": "Extérieur",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/spain-pro-ext.jpeg",
-    "summary": "Maillot pro extérieur Espagne, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "turkish-pro",
-    "team": "Turquie",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/turkish-pro.jpeg",
-    "summary": "Maillot pro domicile Turquie, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "uruguay-pro",
-    "team": "Uruguay",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/uruguay-pro.jpeg",
-    "summary": "Maillot pro domicile Uruguay, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "usa-ext",
-    "team": "États-Unis",
-    "name": "Maillot Pro Extérieur",
-    "category": "Extérieur",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/usa-ext.jpeg",
-    "summary": "Maillot pro extérieur États-Unis, disponible à 10 000 FCFA."
-  },
-  {
-    "slug": "usa-pro-int",
-    "team": "États-Unis",
-    "name": "Maillot Pro Domicile",
-    "category": "Domicile",
-    "version": "Pro",
-    "competition": "Sélection nationale",
-    "price": 10000,
-    "imageUrl": "/jerseys/usa-pro-int.jpeg",
-    "summary": "Maillot pro domicile États-Unis, disponible à 10 000 FCFA."
+    "imageUrl": "/jerseys/tottenham.jpeg",
+    "summary": "Maillot pro domicile blanc Tottenham Hotspur, disponible à 10 000 FCFA."
   }
 ]
