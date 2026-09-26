@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getCategories, getCategoryId, getWhatsappUrl, site } from "@/lib/catalog";
+import { getCategories, getCategoryId, getJerseys, getWhatsappUrl, site } from "@/lib/catalog";
 
-export function SiteHeader() {
-  const categories = getCategories();
+export async function SiteHeader() {
+  const categories = getCategories(await getJerseys());
 
   return (
     <header className="site-header">
@@ -29,6 +29,7 @@ export function SiteHeader() {
             {category}
           </a>
         ))}
+        <Link href="/contact">Contact</Link>
       </nav>
       <a className="site-header__cta" href={getWhatsappUrl()} target="_blank" rel="noreferrer">
         Commander
