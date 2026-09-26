@@ -43,7 +43,7 @@ export async function sssStoreRequest<T>(path: string, options: RequestOptions =
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
     ...(options.method === "POST"
       ? { cache: "no-store" as const }
-      : { next: { revalidate: options.revalidate ?? 60, tags: ["sss"] } })
+      : { next: { revalidate: options.revalidate ?? 30, tags: ["sss"] } })
   });
 
   const payload = (await response.json().catch(() => null)) as

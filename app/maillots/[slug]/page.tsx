@@ -7,7 +7,8 @@ import { JerseyCard } from "@/components/JerseyCard";
 import { JerseyImage } from "@/components/JerseyImage";
 import { formatPrice, getJersey, getRelatedJerseys, getWhatsappUrl, site } from "@/lib/catalog";
 
-export const revalidate = 60;
+// Rendered per request from the shared SSS data cache, so the list and detail pages never disagree.
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{
@@ -75,6 +76,7 @@ export default async function JerseyDetailPage({ params }: PageProps) {
 
           <div className="detail-hero__visual">
             <JerseyImage src={jersey.imageUrl} team={jersey.team} name={jersey.name} priority />
+            {jersey.inStock ? null : <span className="stock-badge stock-badge--lg">Rupture de stock</span>}
           </div>
 
           <div className="detail-hero__content">
@@ -89,7 +91,9 @@ export default async function JerseyDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <span>Disponibilité</span>
-                <strong>En stock</strong>
+                <strong className={jersey.inStock ? undefined : "is-oos"}>
+                  {jersey.inStock ? "En stock" : "Rupture de stock"}
+                </strong>
               </div>
             </div>
           </div>
@@ -98,15 +102,29 @@ export default async function JerseyDetailPage({ params }: PageProps) {
 
       <section className="section product-info">
         <div className="container product-info__grid">
-          <aside className="order-card">
-            <p className="section-kicker">Commande rapide</p>
-            <h2>{formatPrice(jersey.price)}</h2>
-            <p>Envoie ce modèle sur WhatsApp pour confirmer les détails de la commande.</p>
-            <a href={getWhatsappUrl(jersey)} className="btn btn--primary" target="_blank" rel="noreferrer">
-              Commander
-            </a>
-            <AskCaptainButton message={`Le maillot ${jersey.team} ${jersey.name} est disponible en quelle taille ?`} />
-          </aside>
+          {jersey.inStock ? (
+            <aside className="order-card">
+              <p className="section-kicker">Commande rapide</p>
+              <h2>{formatPrice(jersey.price)}</h2>
+              <p>Envoie ce modèle sur WhatsApp pour confirmer les détails de la commande.</p>
+              <a href={getWhatsappUrl(jersey)} className="btn btn--primary" target="_blank" rel="noreferrer">
+                Commander
+              </a>
+              <AskCaptainButton message={`Le maillot ${jersey.team} ${jersey.name} est disponible en quelle taille ?`} />
+            </aside>
+          ) : (
+            <aside className="order-card order-card--oos">
+              <p className="section-kicker">Rupture de stock</p>
+              <h2>Bientôt de retour</h2>
+              <p>Ce maillot est épuisé pour le moment. Demande-nous quand il revient, on te prévient.</p>
+              <a href={getWhatsappUrl(jersey, "restock")} className="btn btn--primary" target="_blank" rel="noreferrer">
+                Me prévenir du retour
+              </a>
+              <a href="/#maillots" className="btn btn--secondary">
+                Voir les maillots dispo
+              </a>
+            </aside>
+          )}
 
           <article className="product-description">
             <p className="section-kicker">Détails du produit</p>

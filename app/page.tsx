@@ -1,7 +1,8 @@
 import { JerseyCard } from "@/components/JerseyCard";
 import { getCategories, getCategoryId, getJerseys, site } from "@/lib/catalog";
 
-export const revalidate = 60;
+// Rendered per request from the shared SSS data cache, so the list and detail pages never disagree.
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const jerseys = await getJerseys();

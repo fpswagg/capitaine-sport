@@ -192,15 +192,15 @@ export const getJerseys = cache(async (): Promise<Jersey[]> => {
   const seen = new Set<string>();
   return products
     .map(toJersey)
-    // Out-of-stock jerseys are hidden everywhere: not listed, and their page 404s.
-    .filter((jersey): jersey is Jersey => jersey !== null && jersey.inStock)
+    .filter((jersey): jersey is Jersey => jersey !== null)
     .map((jersey) => {
       // Guarantee unique slugs even if two products share a name.
       const slug = seen.has(jersey.slug) ? `${jersey.slug}-${slugify(jersey.id)}` : jersey.slug;
       seen.add(slug);
       return { ...jersey, slug };
     })
-    .sort((a, b) => a.team.localeCompare(b.team, "fr"));
+    // Out-of-stock jerseys stay visible (with a badge) but go after available ones.
+    .sort((a, b) => Number(b.inStock) - Number(a.inStock) || a.team.localeCompare(b.team, "fr"));
 });
 
 export function formatPrice(price: number) {
@@ -222,14 +222,20 @@ export function getCategoryId(category: Jersey["category"]) {
 export async function getRelatedJerseys(current: Jersey, limit = 4) {
   return (await getJerseys())
     .filter((jersey) => jersey.slug !== current.slug)
-    .sort((a, b) => Number(b.category === current.category) - Number(a.category === current.category))
+    .sort(
+      (a, b) =>
+        Number(b.inStock) - Number(a.inStock) ||
+        Number(b.category === current.category) - Number(a.category === current.category)
+    )
     .slice(0, limit);
 }
 
-export function getWhatsappUrl(jersey?: Jersey) {
-  const message = jersey
-    ? `Bonjour Capitaine Sport, je veux commander le ${jersey.name} ${jersey.team} à ${formatPrice(jersey.price)}.`
-    : "Bonjour Capitaine Sport, je veux commander un maillot.";
+export function getWhatsappUrl(jersey?: Jersey, intent: "order" | "restock" = "order") {
+  const message = !jersey
+    ? "Bonjour Capitaine Sport, je veux commander un maillot."
+    : intent === "restock"
+      ? `Bonjour Capitaine Sport, prévenez-moi quand le ${jersey.name} ${jersey.team} sera de retour en stock.`
+      : `Bonjour Capitaine Sport, je veux commander le ${jersey.name} ${jersey.team} à ${formatPrice(jersey.price)}.`;
 
   return `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
