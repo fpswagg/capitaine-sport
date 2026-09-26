@@ -89,7 +89,7 @@ export default async function JerseyDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <span>Disponibilité</span>
-                <strong>{jersey.inStock ? "En stock" : "Sur commande"}</strong>
+                <strong>En stock</strong>
               </div>
             </div>
           </div>

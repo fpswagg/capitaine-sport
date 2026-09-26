@@ -192,7 +192,8 @@ export const getJerseys = cache(async (): Promise<Jersey[]> => {
   const seen = new Set<string>();
   return products
     .map(toJersey)
-    .filter((jersey): jersey is Jersey => jersey !== null)
+    // Out-of-stock jerseys are hidden everywhere: not listed, and their page 404s.
+    .filter((jersey): jersey is Jersey => jersey !== null && jersey.inStock)
     .map((jersey) => {
       // Guarantee unique slugs even if two products share a name.
       const slug = seen.has(jersey.slug) ? `${jersey.slug}-${slugify(jersey.id)}` : jersey.slug;
