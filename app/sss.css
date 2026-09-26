@@ -251,6 +251,13 @@
   align-items: flex-end;
   gap: var(--space-3);
   font-family: var(--font-body), "Helvetica Neue", Arial, sans-serif;
+  /* The wrapper keeps the closed panel's footprint; let the page underneath receive the mouse. */
+  pointer-events: none;
+}
+
+.chat__launcher,
+.chat__teaser {
+  pointer-events: auto;
 }
 
 .chat svg {
