@@ -51,7 +51,7 @@ function list(value: unknown): string[] {
 }
 
 function normalize(value: string) {
-  return value.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
 export function slugify(value: string) {
@@ -78,25 +78,32 @@ function pickImage(product: SssProduct): string | null {
 }
 
 // Domicile vs Extérieur is not a first-class SSS field. We read, in order of
-// reliability: an explicit attribute, then the tags, the category, the SKU
-// suffix (same `-ext` / `-int` convention as the original catalog) and finally
-// the product name. Anything that says nothing is treated as Domicile.
-const AWAY_PATTERN = /(^|[^a-z])(ext|exterieur|away|third|troisieme|3rd|alternatif)([^a-z]|$)/;
+// reliability: an explicit attribute, the tags, the product name
+// ("Maillot Chelsea Extérieur 2024/25", "Maillot Real Madrid 3"), then the SKU
+// (same `-ext` / `-int` convention as the original catalog; SSS truncates
+// SKUs, so it comes after the name). Anything that says nothing is Domicile.
+// Third kits ("3ème", "third", trailing "3") are sold as Extérieur.
+const THIRD_PATTERN = /(^|[^a-z0-9])(3(e|eme|rd)?|third|troisieme)([^a-z0-9]|$)/;
+const AWAY_PATTERN = /(^|[^a-z])(ext|exterieur|away|alternatif)([^a-z]|$)/;
 const HOME_PATTERN = /(^|[^a-z])(int|interieur|domicile|home)([^a-z]|$)/;
+const SEASON_PATTERN = /\b(20)?\d{2}\s*[/-]\s*(20)?\d{2}\b/;
 
-function detectCategory(product: SssProduct, name: string): Jersey["category"] {
+type Kit = "Domicile" | "Extérieur" | "Troisième";
+
+function detectKit(product: SssProduct, name: string): Kit {
   const attributes = (product.attributes ?? product.metadata ?? product.custom ?? {}) as SssProduct;
   const sources = [
-    text(product.side) || text(attributes.side) || text(attributes.kit) || text(attributes.type),
+    text(product.side) || text(attributes.side) || text(attributes.kit),
     list(product.tags).join(" "),
-    text(product.category) || text(product.categoryName),
-    text(product.sku).replace(/[-_]/g, " "),
-    name
+    name.replace(SEASON_PATTERN, " "),
+    text(product.sku).replace(/[-_]/g, " ")
   ];
 
-  for (const source of sources) {
+  for (const [index, source] of sources.entries()) {
     const value = normalize(source);
     if (!value) continue;
+    // A bare trailing number in a SKU is a duplicate counter, not a kit.
+    if (index !== 3 && THIRD_PATTERN.test(value)) return "Troisième";
     if (AWAY_PATTERN.test(value)) return "Extérieur";
     if (HOME_PATTERN.test(value)) return "Domicile";
   }
@@ -104,29 +111,44 @@ function detectCategory(product: SssProduct, name: string): Jersey["category"] {
   return "Domicile";
 }
 
+// "Maillot Manchester City 3ème 2024/25" -> "Manchester City"
+function extractTeam(name: string) {
+  const team = name
+    .replace(SEASON_PATTERN, " ")
+    .replace(/(^|\s)(maillots?|pro|collector|domicile|home|away|third|troisi[èe]me|ext[ée]rieur|int[ée]rieur)(?=\s|$)/gi, " ")
+    .replace(/(^|\s)3(e|ème|eme|rd)?(?=\s|$)/gi, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  return team || name;
+}
+
 function toJersey(product: SssProduct): Jersey | null {
   const id = text(product.id) || text(product.sku);
   const rawName = text(product.name) || text(product.title);
   if (!id || !rawName) return null;
 
+  if (product.active === false) return null;
   const status = normalize(text(product.status));
   if (status === "archived" || status === "draft" || status === "inactive") return null;
 
   const attributes = (product.attributes ?? product.metadata ?? {}) as SssProduct;
   const tags = list(product.tags).map(normalize);
-  const category = detectCategory(product, rawName);
-  const team = text(attributes.team) || text(product.brand) || rawName.replace(/\b(maillot|pro|domicile|ext[ée]rieur|int[ée]rieur|collector|home|away)\b/gi, "").replace(/\s{2,}/g, " ").trim() || rawName;
+  const kit = detectKit(product, rawName);
+  const category: Jersey["category"] = kit === "Domicile" ? "Domicile" : "Extérieur";
+  const team = text(attributes.team) || extractTeam(rawName);
   const version: Jersey["version"] =
     tags.includes("collector") || /collector/i.test(`${rawName} ${text(product.sku)}`) ? "Collector" : "Pro";
+  const season = rawName.match(SEASON_PATTERN)?.[0].replace(/\s+/g, "");
 
-  const quantity = product.quantity ?? product.stock ?? product.onHand;
+  const quantity = product.unlimitedStock === true ? null : (product.quantity ?? product.stock ?? product.onHand);
   const price = num(product.price ?? product.salePrice ?? product.unitPrice ?? product.sellingPrice);
+  const name = `Maillot ${version} ${kit}${season ? ` ${season}` : ""}`;
 
   return {
     id,
-    slug: slugify(text(product.slug) || text(product.sku) || `${rawName}-${id}`) || id,
+    slug: slugify(text(product.slug) || `${team}-${kit}${season ? `-${season}` : ""}`) || slugify(id),
     team,
-    name: team === rawName ? `Maillot ${version} ${category}` : rawName,
+    name,
     category,
     version,
     competition: text(attributes.competition) || text(attributes.league) || tags.find((tag) => !["collector", "pro"].includes(tag)) || "",
@@ -134,7 +156,7 @@ function toJersey(product: SssProduct): Jersey | null {
     imageUrl: pickImage(product),
     summary:
       text(product.description) ||
-      `Maillot ${version.toLowerCase()} ${category.toLowerCase()} ${team}${price ? `, disponible à ${formatPrice(price)}` : ""}.`,
+      `Maillot ${version.toLowerCase()} ${kit.toLowerCase()} ${team}${price ? `, disponible à ${formatPrice(price)}` : ""}.`,
     inStock: quantity === undefined || quantity === null ? true : num(quantity) > 0
   };
 }
