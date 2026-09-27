@@ -1,8 +1,12 @@
 import { JerseyCard } from "@/components/JerseyCard";
-import { getCategories, getCategoryId, getJerseysByCategory, jerseys, site } from "@/lib/catalog";
+import { getCategories, getCategoryId, getJerseys, site } from "@/lib/catalog";
 
-export default function Home() {
-  const categories = getCategories();
+// Rendered per request from the shared SSS data cache, so the list and detail pages never disagree.
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const jerseys = await getJerseys();
+  const categories = getCategories(jerseys);
 
   return (
     <main>
@@ -35,7 +39,8 @@ export default function Home() {
             <p className="section-kicker">Prix en FCFA</p>
             <h2 className="section-title">Maillots disponibles</h2>
             <p className="section-copy">
-              Tous les maillots sont en version pro à 10 000 FCFA. Clique sur un produit pour voir les détails et commander sur WhatsApp.
+              Le catalogue suit notre stock en direct. Clique sur un produit pour voir les détails et commander sur
+              WhatsApp, ou pose ta question au Capitaine en bas à droite.
             </p>
           </div>
           <div className="catalog-layout__links">
@@ -48,8 +53,21 @@ export default function Home() {
         </div>
       </section>
 
+      {jerseys.length === 0 ? (
+        <section className="section section--compact">
+          <div className="container empty-state">
+            <p className="section-kicker">Catalogue</p>
+            <h2 className="section-title">Nouveaux maillots en préparation</h2>
+            <p className="section-copy">
+              Le stock est momentanément indisponible. Écris-nous au {site.contactLabel} pour connaître les modèles
+              disponibles.
+            </p>
+          </div>
+        </section>
+      ) : null}
+
       {categories.map((category, index) => {
-        const categoryJerseys = getJerseysByCategory(category);
+        const categoryJerseys = jerseys.filter((jersey) => jersey.category === category);
         const otherCategory = categories.find((candidate) => candidate !== category);
 
         return (
@@ -77,7 +95,6 @@ export default function Home() {
           </section>
         );
       })}
-
     </main>
   );
 }

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Dancing_Script, DM_Sans } from "next/font/google";
 
+import { ChatWidget } from "@/components/ChatWidget";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { site } from "@/lib/catalog";
 import "./globals.css";
+import "./sss.css";
 
 const bebas = Bebas_Neue({
   subsets: ["latin"],
@@ -29,7 +31,7 @@ export const metadata: Metadata = {
     template: `%s | ${site.brand}`
   },
   description:
-    "Capitaine Sport propose des maillots pro domicile et extérieur à 10 000 FCFA, avec commande directe sur WhatsApp.",
+    "Capitaine Sport propose des maillots pro domicile et extérieur, avec commande directe sur WhatsApp.",
   metadataBase: new URL("https://capitaine-sport.com"),
   keywords: [
     "Capitaine Sport",
@@ -84,6 +86,7 @@ export default function RootLayout({
         <SiteHeader />
         {children}
         <SiteFooter />
+        <ChatWidget />
       </body>
     </html>
   );
