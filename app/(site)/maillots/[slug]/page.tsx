@@ -5,7 +5,9 @@ import { notFound } from "next/navigation";
 import { AskCaptainButton } from "@/components/AskCaptainButton";
 import { JerseyCard } from "@/components/JerseyCard";
 import { JerseyImage } from "@/components/JerseyImage";
+import { TrackView } from "@/components/TrackClicks";
 import { formatPrice, getJersey, getRelatedJerseys, getWhatsappUrl, site } from "@/lib/catalog";
+import { getSite } from "@/lib/site";
 
 // Rendered per request from the shared SSS data cache, so the list and detail pages never disagree.
 export const dynamic = "force-dynamic";
@@ -60,10 +62,11 @@ export default async function JerseyDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const related = await getRelatedJerseys(jersey);
+  const [related, shop] = await Promise.all([getRelatedJerseys(jersey), getSite()]);
 
   return (
     <main>
+      <TrackView id={jersey.id} />
       <section className="detail-hero">
         <div className="container detail-hero__grid">
           <div className="breadcrumb">
@@ -107,7 +110,7 @@ export default async function JerseyDetailPage({ params }: PageProps) {
               <p className="section-kicker">Commande rapide</p>
               <h2>{formatPrice(jersey.price)}</h2>
               <p>Envoie ce modèle sur WhatsApp pour confirmer les détails de la commande.</p>
-              <a href={getWhatsappUrl(jersey)} className="btn btn--primary" target="_blank" rel="noreferrer">
+              <a href={getWhatsappUrl(shop, jersey)} className="btn btn--primary" target="_blank" rel="noreferrer" data-wa="order" data-product={jersey.id}>
                 Commander
               </a>
               <AskCaptainButton message={`Le maillot ${jersey.team} ${jersey.name} est disponible en quelle taille ?`} />
@@ -117,7 +120,7 @@ export default async function JerseyDetailPage({ params }: PageProps) {
               <p className="section-kicker">Rupture de stock</p>
               <h2>Bientôt de retour</h2>
               <p>Ce maillot est épuisé pour le moment. Demande-nous quand il revient, on te prévient.</p>
-              <a href={getWhatsappUrl(jersey, "restock")} className="btn btn--primary" target="_blank" rel="noreferrer">
+              <a href={getWhatsappUrl(shop, jersey, "restock")} className="btn btn--primary" target="_blank" rel="noreferrer" data-wa="restock" data-product={jersey.id}>
                 Me prévenir du retour
               </a>
               <a href="/#maillots" className="btn btn--secondary">

@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 
-import { sendFeedback, type ContactState } from "@/app/contact/actions";
+import { sendFeedback, type ContactState } from "@/app/(site)/contact/actions";
 
 const initialState: ContactState = { status: "idle", message: "" };
 

@@ -1,8 +1,10 @@
 import Image from "next/image";
 
-import { getWhatsappUrl, site } from "@/lib/catalog";
+import { getWhatsappUrl } from "@/lib/catalog";
+import { getSite } from "@/lib/site";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const site = await getSite();
   return (
     <footer className="site-footer">
       <div className="site-footer__identity">
@@ -18,7 +20,7 @@ export function SiteFooter() {
       </div>
       <div className="site-footer__contact">
         <span>Contact direct</span>
-        <a href={getWhatsappUrl()} target="_blank" rel="noreferrer">
+        <a href={getWhatsappUrl(site)} target="_blank" rel="noreferrer" data-wa="contact">
           {site.contactLabel}
         </a>
       </div>

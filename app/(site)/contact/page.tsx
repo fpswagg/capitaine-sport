@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 import { ContactForm } from "@/components/ContactForm";
-import { getWhatsappUrl, site } from "@/lib/catalog";
+import { getWhatsappUrl } from "@/lib/catalog";
+import { getSite } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" }
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const site = await getSite();
   return (
     <main>
       <section className="hero hero--compact">
@@ -34,7 +36,7 @@ export default function ContactPage() {
               <p className="section-kicker">Plus rapide</p>
               <h2>WhatsApp</h2>
               <p>Pour commander tout de suite, écris-nous directement.</p>
-              <a href={getWhatsappUrl()} className="btn btn--primary" target="_blank" rel="noreferrer">
+              <a href={getWhatsappUrl(site)} className="btn btn--primary" target="_blank" rel="noreferrer" data-wa="contact">
                 {site.contactLabel}
               </a>
             </div>

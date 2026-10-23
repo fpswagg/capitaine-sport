@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Dancing_Script, DM_Sans } from "next/font/google";
 
-import { ChatWidget } from "@/components/ChatWidget";
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
 import { site } from "@/lib/catalog";
 import "./globals.css";
 import "./sss.css";
@@ -83,10 +80,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${bebas.variable} ${dmSans.variable} ${dancingScript.variable}`}>
-        <SiteHeader />
         {children}
-        <SiteFooter />
-        <ChatWidget />
       </body>
     </html>
   );

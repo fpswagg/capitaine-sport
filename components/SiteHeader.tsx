@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getCategories, getCategoryId, getJerseys, getWhatsappUrl, site } from "@/lib/catalog";
+import { getCategories, getCategoryId, getJerseys, getWhatsappUrl } from "@/lib/catalog";
+import { getSite } from "@/lib/site";
 
 export async function SiteHeader() {
-  const categories = getCategories(await getJerseys());
+  const [jerseys, site] = await Promise.all([getJerseys(), getSite()]);
+  const categories = getCategories(jerseys);
 
   return (
     <header className="site-header">
@@ -31,7 +33,7 @@ export async function SiteHeader() {
         ))}
         <Link href="/contact">Contact</Link>
       </nav>
-      <a className="site-header__cta" href={getWhatsappUrl()} target="_blank" rel="noreferrer">
+      <a className="site-header__cta" href={getWhatsappUrl(site)} target="_blank" rel="noreferrer" data-wa="contact">
         Commander
       </a>
     </header>

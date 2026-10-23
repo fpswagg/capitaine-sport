@@ -88,7 +88,7 @@ const AWAY_PATTERN = /(^|[^a-z])(ext|exterieur|away|alternatif)([^a-z]|$)/;
 const HOME_PATTERN = /(^|[^a-z])(int|interieur|domicile|home)([^a-z]|$)/;
 const SEASON_PATTERN = /\b(20)?\d{2}\s*[/-]\s*(20)?\d{2}\b/;
 
-type Kit = "Domicile" | "Extérieur" | "Troisième";
+export type Kit = "Domicile" | "Extérieur" | "Troisième";
 
 function detectKit(product: SssProduct, name: string): Kit {
   const attributes = (product.attributes ?? product.metadata ?? product.custom ?? {}) as SssProduct;
@@ -122,6 +122,22 @@ function extractTeam(name: string) {
   return team || name;
 }
 
+/** What the catalog reads from one SSS product (also shown in the dashboard). */
+export type JerseyFacts = { team: string; kit: Kit; season: string; version: Jersey["version"]; competition: string };
+
+export function jerseyFacts(product: SssProduct): JerseyFacts {
+  const rawName = text(product.name) || text(product.title);
+  const attributes = (product.attributes ?? product.metadata ?? {}) as SssProduct;
+  const tags = list(product.tags).map(normalize);
+  return {
+    team: text(attributes.team) || extractTeam(rawName),
+    kit: detectKit(product, rawName),
+    season: text(attributes.season) || rawName.match(SEASON_PATTERN)?.[0].replace(/\s+/g, "") || "",
+    version: tags.includes("collector") || /collector/i.test(`${rawName} ${text(product.sku)}`) ? "Collector" : "Pro",
+    competition: text(attributes.competition) || text(attributes.league) || tags.find((tag) => !["collector", "pro"].includes(tag)) || ""
+  };
+}
+
 function toJersey(product: SssProduct): Jersey | null {
   const id = text(product.id) || text(product.sku);
   const rawName = text(product.name) || text(product.title);
@@ -131,14 +147,8 @@ function toJersey(product: SssProduct): Jersey | null {
   const status = normalize(text(product.status));
   if (status === "archived" || status === "draft" || status === "inactive") return null;
 
-  const attributes = (product.attributes ?? product.metadata ?? {}) as SssProduct;
-  const tags = list(product.tags).map(normalize);
-  const kit = detectKit(product, rawName);
+  const { team, kit, season, version, competition } = jerseyFacts(product);
   const category: Jersey["category"] = kit === "Domicile" ? "Domicile" : "Extérieur";
-  const team = text(attributes.team) || extractTeam(rawName);
-  const version: Jersey["version"] =
-    tags.includes("collector") || /collector/i.test(`${rawName} ${text(product.sku)}`) ? "Collector" : "Pro";
-  const season = rawName.match(SEASON_PATTERN)?.[0].replace(/\s+/g, "");
 
   const quantity = product.unlimitedStock === true ? null : (product.quantity ?? product.stock ?? product.onHand);
   const price = num(product.price ?? product.salePrice ?? product.unitPrice ?? product.sellingPrice);
@@ -151,7 +161,7 @@ function toJersey(product: SssProduct): Jersey | null {
     name,
     category,
     version,
-    competition: text(attributes.competition) || text(attributes.league) || tags.find((tag) => !["collector", "pro"].includes(tag)) || "",
+    competition,
     price,
     imageUrl: pickImage(product),
     summary:
@@ -230,12 +240,13 @@ export async function getRelatedJerseys(current: Jersey, limit = 4) {
     .slice(0, limit);
 }
 
-export function getWhatsappUrl(jersey?: Jersey, intent: "order" | "restock" = "order") {
+/** WhatsApp link to the shop. `site` comes from getSite() (the number is editable in the dashboard). */
+export function getWhatsappUrl(shop: Pick<SiteContent, "whatsappNumber">, jersey?: Jersey, intent: "order" | "restock" = "order") {
   const message = !jersey
     ? "Bonjour Capitaine Sport, je veux commander un maillot."
     : intent === "restock"
       ? `Bonjour Capitaine Sport, prévenez-moi quand le ${jersey.name} ${jersey.team} sera de retour en stock.`
       : `Bonjour Capitaine Sport, je veux commander le ${jersey.name} ${jersey.team} à ${formatPrice(jersey.price)}.`;
 
-  return `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${shop.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }

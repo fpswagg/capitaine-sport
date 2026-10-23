@@ -1,11 +1,12 @@
 import { JerseyCard } from "@/components/JerseyCard";
-import { getCategories, getCategoryId, getJerseys, site } from "@/lib/catalog";
+import { getCategories, getCategoryId, getJerseys } from "@/lib/catalog";
+import { getSite } from "@/lib/site";
 
 // Rendered per request from the shared SSS data cache, so the list and detail pages never disagree.
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const jerseys = await getJerseys();
+  const [jerseys, site] = await Promise.all([getJerseys(), getSite()]);
   const categories = getCategories(jerseys);
 
   return (

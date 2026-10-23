@@ -22,7 +22,7 @@ export function isSssConfigured() {
 }
 
 type RequestOptions = {
-  method?: "GET" | "POST";
+  method?: "GET" | "POST" | "PATCH";
   body?: unknown;
   revalidate?: number | false;
 };
@@ -41,7 +41,7 @@ export async function sssStoreRequest<T>(path: string, options: RequestOptions =
       ...(options.body !== undefined ? { "Content-Type": "application/json" } : {})
     },
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-    ...(options.method === "POST"
+    ...((options.method && options.method !== "GET") || options.revalidate === false
       ? { cache: "no-store" as const }
       : { next: { revalidate: options.revalidate ?? 30, tags: ["sss"] } })
   });
