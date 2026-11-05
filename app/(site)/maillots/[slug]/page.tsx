@@ -6,7 +6,7 @@ import { AskCaptainButton } from "@/components/AskCaptainButton";
 import { JerseyCard } from "@/components/JerseyCard";
 import { JerseyImage } from "@/components/JerseyImage";
 import { TrackView } from "@/components/TrackClicks";
-import { formatPrice, getJersey, getRelatedJerseys, getWhatsappUrl, site } from "@/lib/catalog";
+import { formatPrice, getJersey, getRelatedJerseys, getWhatsappUrl, site, type Jersey } from "@/lib/catalog";
 import { getSite } from "@/lib/site";
 
 // Rendered per request from the shared SSS data cache, so the list and detail pages never disagree.
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: jersey.title,
-    description: `${jersey.summary} Prix: ${formatPrice(jersey.price)}. ${jersey.version ? `Version ${jersey.version}, commande` : "Commande"} disponible sur WhatsApp.`,
+    description: `${jersey.summary} Prix: ${formatPrice(jersey.price)}. Commande disponible sur WhatsApp.`,
     alternates: {
       canonical: `/maillots/${jersey.slug}`
     },
@@ -52,6 +52,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: jersey.imageUrl ? [jersey.imageUrl] : undefined
     }
   };
+}
+
+function OrderFields({ fields }: { fields: Jersey["fields"] }) {
+  return (
+    <dl className="order-fields">
+      {fields.map((field) => (
+        <div key={field.label}>
+          <dt>{field.label}</dt>
+          <dd>{field.value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
 }
 
 export default async function JerseyDetailPage({ params }: PageProps) {
@@ -109,7 +122,8 @@ export default async function JerseyDetailPage({ params }: PageProps) {
             <aside className="order-card">
               <p className="section-kicker">Commande rapide</p>
               <h2>{formatPrice(jersey.price)}</h2>
-              <p>Envoie ce modèle sur WhatsApp pour confirmer les détails de la commande.</p>
+              <OrderFields fields={jersey.fields} />
+              <p>Ces détails partent dans ton message WhatsApp.</p>
               <a href={getWhatsappUrl(shop, jersey)} className="btn btn--primary" target="_blank" rel="noreferrer" data-wa="order" data-product={jersey.id}>
                 Commander
               </a>
@@ -119,6 +133,7 @@ export default async function JerseyDetailPage({ params }: PageProps) {
             <aside className="order-card order-card--oos">
               <p className="section-kicker">Rupture de stock</p>
               <h2>Bientôt de retour</h2>
+              <OrderFields fields={jersey.fields} />
               <p>Ce maillot est épuisé pour le moment. Demande-nous quand il revient, on te prévient.</p>
               <a href={getWhatsappUrl(shop, jersey, "restock")} className="btn btn--primary" target="_blank" rel="noreferrer" data-wa="restock" data-product={jersey.id}>
                 Me prévenir du retour
@@ -134,26 +149,10 @@ export default async function JerseyDetailPage({ params }: PageProps) {
             <h2>Maillot {jersey.team}</h2>
             <p>{jersey.summary}</p>
             <div className="product-description__facts">
-              <div>
-                <span>Catégorie</span>
-                <strong>{jersey.category}</strong>
-              </div>
               {jersey.competition ? (
                 <div>
                   <span>Compétition</span>
                   <strong>{jersey.competition}</strong>
-                </div>
-              ) : null}
-              {jersey.version ? (
-                <div>
-                  <span>Version</span>
-                  <strong>{jersey.version}</strong>
-                </div>
-              ) : null}
-              {jersey.audience ? (
-                <div>
-                  <span>Pour</span>
-                  <strong>{jersey.audience}</strong>
                 </div>
               ) : null}
               <div>

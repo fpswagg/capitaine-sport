@@ -2,7 +2,7 @@ import { cache } from "react";
 
 import frozenSlugs from "@/data/jersey-slugs.json";
 import siteData from "@/data/site.json";
-import { jerseyFacts, jerseyLine, jerseySlug, jerseyTitle, normalize, slugify, text, type SssProduct } from "@/lib/jersey-facts";
+import { jerseyFacts, jerseyFields, jerseyLine, jerseySlug, jerseyTitle, normalize, slugify, text, type SssProduct } from "@/lib/jersey-facts";
 import { isSssConfigured, sssStoreRequest } from "@/lib/sss";
 
 export { jerseyFacts, slugify };
@@ -18,10 +18,11 @@ export type Jersey = {
   name: string;
   /** Third kits are sold as Extérieur; a version the site does not know is Spéciaux. */
   category: "Domicile" | "Extérieur" | "Spéciaux";
-  version: "Pro" | "Collector" | null;
   /** "enfant 3-10 ans", or "" for an adult jersey. */
   audience: string;
   competition: string;
+  /** Club, Version, Saison, Âge, Édition: the labels of the SSS product form. */
+  fields: Array<{ label: string; value: string }>;
   price: number;
   imageUrl: string | null;
   summary: string;
@@ -76,7 +77,7 @@ function toJersey(product: SssProduct): Jersey | null {
   if (status === "archived" || status === "draft" || status === "inactive") return null;
 
   const facts = jerseyFacts(product);
-  const { team, kit, version, audience, competition } = facts;
+  const { team, kit, audience, competition } = facts;
   const category: Jersey["category"] = kit === null ? "Spéciaux" : kit === "Domicile" ? "Domicile" : "Extérieur";
 
   const quantity = product.unlimitedStock === true ? null : (product.quantity ?? product.stock ?? product.onHand);
@@ -90,9 +91,9 @@ function toJersey(product: SssProduct): Jersey | null {
     title,
     name: jerseyLine(facts),
     category,
-    version,
     audience,
     competition,
+    fields: jerseyFields(facts),
     price,
     imageUrl: pickImage(product),
     summary: text(product.description) || `${title}${price ? `, disponible à ${formatPrice(price)}` : ""}.`,
@@ -175,7 +176,11 @@ export function getWhatsappUrl(shop: Pick<SiteContent, "whatsappNumber">, jersey
     ? "Bonjour Capitaine Sport, je veux commander un maillot."
     : intent === "restock"
       ? `Bonjour Capitaine Sport, prévenez-moi quand le ${jersey.title} sera de retour en stock.`
-      : `Bonjour Capitaine Sport, je veux commander le ${jersey.title} à ${formatPrice(jersey.price)}.`;
+      : [
+          "Bonjour Capitaine Sport, je veux commander ce maillot :",
+          ...jersey.fields.map((field) => `${field.label} : ${field.value}`),
+          `Prix : ${formatPrice(jersey.price)}`
+        ].join("\n");
 
   return `https://wa.me/${shop.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }

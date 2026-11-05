@@ -580,6 +580,35 @@ a {
   color: var(--cs-gray-700);
 }
 
+.order-fields {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+}
+
+.order-fields div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: 1px solid rgba(15, 15, 15, 0.08);
+  padding-bottom: var(--space-2);
+}
+
+.order-fields dt {
+  color: var(--cs-gray-500);
+  font-size: var(--text-xs);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.order-fields dd {
+  margin: 0;
+  color: var(--cs-black);
+  font-weight: 800;
+  text-align: right;
+}
+
 .product-description {
   border-radius: 28px;
   background: var(--cs-white);

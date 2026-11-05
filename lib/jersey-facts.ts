@@ -2,11 +2,13 @@
 // framework import) so it is shared by the catalog and the dashboard, and tested
 // directly by tests/jersey-facts.test.mjs.
 //
-// Reading order: the fields of the SSS product form (metadata.club, version,
-// saison, age), then the keys this site's dashboard used to write (team, kit,
-// season), then the product name. Nothing is guessed when nothing is said: the
-// version "Spécial", any other version ("Gardien") or no version at all stays
-// out of Domicile / Extérieur.
+// Metadata comes first. A product whose metadata names its club (metadata.club,
+// or the older metadata.team) is described by its metadata alone: club, version,
+// saison, age, edition, competition and collector. An emptied field stays empty,
+// it never comes back from the name. Only a product without a club in its
+// metadata is read from its name, tags and SKU. Nothing is guessed: the version
+// "Spécial", any other version ("Gardien") or no version at all stays out of
+// Domicile / Extérieur.
 
 export type SssProduct = Record<string, unknown>;
 
@@ -18,7 +20,13 @@ export type JerseyFacts = {
   kit: Kit | null;
   /** What the title says about the version: "Domicile", "Troisième", "Dior", or "" (never "Spécial"). */
   kitLabel: string;
+  /** The version in the words of the SSS product form: "Domicile", "3ème", "Spécial", "Gardien". */
+  versionLabel: string;
+  /** "Dior", "Ligue des Champions", or "". */
+  edition: string;
   season: string;
+  /** The age as the shop wrote it: "3-10 ans", or "" when nothing is said. */
+  age: string;
   /** "enfant 3-10 ans", "enfant", or "" for an adult jersey. */
   audience: string;
   /** Null on a children's jersey, which is not sold as "Pro". */
@@ -109,16 +117,6 @@ function teamFromName(rest: string, fallback: string) {
   return team || fallback;
 }
 
-// "Maillot PSG Dior" with club PSG -> "Dior". Only when the name is about that
-// team: "Fourteen enfant" for Cameroun says nothing we can put after the team.
-function editionFromName(rest: string, team: string) {
-  const words = teamFromName(rest, "").split(" ").filter(Boolean);
-  const teamWords = normalize(team).split(/\s+/);
-  const start = words.findIndex((_, index) => teamWords.every((word, offset) => normalize(words[index + offset] ?? "") === word));
-  if (start === -1) return "";
-  return words.filter((_, index) => index < start || index >= start + teamWords.length).join(" ");
-}
-
 function formatAudience(age: string, kids: boolean) {
   const value = age.replace(/\s+/g, " ").trim();
   if (/^adultes?$|^adults?$/i.test(value)) return "";
@@ -132,55 +130,80 @@ export function jerseyFacts(product: SssProduct): JerseyFacts {
   const attributes = (product.attributes ?? product.metadata ?? product.custom ?? {}) as SssProduct;
   const tags = list(product.tags).map(normalize);
   const sku = text(product.sku);
-  const name = parsePhrase(rawName);
+  const parsedName = parsePhrase(rawName);
+  const team = text(attributes.club) || text(attributes.team) || teamFromName(parsedName.rest, rawName);
+  // With a club in its metadata, the product is described by its metadata alone.
+  const described = Boolean(text(attributes.club) || text(attributes.team));
+  const name = described ? { age: "", kids: false, season: "", rest: "" } : parsedName;
 
   // The shop's own version field, unless it really holds something else.
   const explicit = parsePhrase(text(attributes.version) || text(attributes.kit) || text(product.side) || text(attributes.side));
   const statedLine = normalize(explicit.rest);
   const explicitLabel = statedLine === "pro" || statedLine === "collector" || isSpecialWord(explicit.rest) ? "" : explicit.rest;
-  const team = text(attributes.club) || text(attributes.team) || teamFromName(name.rest, rawName);
 
   let kit: Kit | null = readKit(explicitLabel);
   let kitLabel = explicitLabel;
   if (kit && Object.hasOwn(KIT_WORDS, normalize(explicitLabel))) kitLabel = kit;
   if (isSpecialWord(explicit.rest)) {
     kit = null;
-  } else if (!explicitLabel) {
+  } else if (!explicitLabel && !described) {
     // A number at the end of a SKU is a duplicate counter, not a third kit, so
     // the SKU only speaks for home and away (and SSS truncates it, so it comes last).
     const skuKit = readKit(sku);
     kit = readKit(tags.join(" ")) ?? readKit(name.rest) ?? (skuKit === "Troisième" ? null : skuKit);
     kitLabel = kit ?? "";
   }
-  if (!kit && !kitLabel) kitLabel = text(attributes.edition) || editionFromName(name.rest, team);
+  const edition = text(attributes.edition);
+  if (!kit && !kitLabel) kitLabel = edition;
 
-  const audience = formatAudience(text(attributes.age) || explicit.age || name.age, explicit.kids || name.kids);
-  const collector = statedLine === "collector" || tags.includes("collector") || /collector/i.test(`${rawName} ${sku}`);
+  const age = text(attributes.age) || explicit.age || name.age;
+  const audience = formatAudience(age, explicit.kids || name.kids);
+  const stated = attributes.collector === true || text(attributes.collector).toLowerCase() === "true";
+  const collector = stated || statedLine === "collector" || tags.includes("collector") || (!described && /collector/i.test(`${rawName} ${sku}`));
 
   return {
     team,
     kit,
     kitLabel,
+    versionLabel: kit === "Troisième" ? "3ème" : kit ?? (explicitLabel || (explicit.rest ? "Spécial" : "")),
+    edition,
     season: text(attributes.saison) || text(attributes.season) || name.season,
+    age,
     audience,
     version: collector ? "Collector" : audience ? null : "Pro",
-    competition: text(attributes.competition) || text(attributes.league) || tags.find((tag) => !["collector", "pro"].includes(tag)) || ""
+    competition: text(attributes.competition) || text(attributes.league) || (described ? "" : tags.find((tag) => !["collector", "pro"].includes(tag)) || "")
   };
 }
 
 const joinWords = (...words: Array<string | null | false>) => words.filter(Boolean).join(" ");
 
+/** The version and the edition as they read in a title. A special edition's label already is its edition. */
+export function jerseyDetails(facts: Pick<JerseyFacts, "kitLabel" | "edition">) {
+  return joinWords(facts.kitLabel, facts.edition !== facts.kitLabel && facts.edition);
+}
+
 /** The full title: "Maillot Chelsea Extérieur 2024/25", "Maillot Cameroun enfant 3-10 ans". */
 export function jerseyTitle(facts: JerseyFacts) {
-  return joinWords("Maillot", facts.team, facts.version === "Collector" && "Collector", facts.kitLabel, facts.season, facts.audience);
+  return joinWords("Maillot", facts.team, facts.version === "Collector" && "Collector", jerseyDetails(facts), facts.season, facts.audience);
 }
 
 /** The line under the team on a card: "Maillot Pro Extérieur 2024/25". */
 export function jerseyLine(facts: JerseyFacts) {
-  return joinWords("Maillot", facts.version, facts.kitLabel, facts.season, facts.audience);
+  return joinWords("Maillot", facts.version, jerseyDetails(facts), facts.season, facts.audience);
 }
 
 /** The slug of a product that has none frozen yet (see data/jersey-slugs.json). */
 export function jerseySlug(facts: JerseyFacts) {
-  return slugify(joinWords(facts.team, facts.kitLabel, facts.season, facts.audience));
+  return slugify(joinWords(facts.team, jerseyDetails(facts), facts.season, facts.audience));
+}
+
+/** The fields of the SSS product form, under the same names, for the order section and its message. */
+export function jerseyFields(facts: JerseyFacts): Array<{ label: string; value: string }> {
+  return [
+    { label: "Club", value: facts.team },
+    { label: "Version", value: facts.versionLabel },
+    { label: "Saison", value: facts.season },
+    { label: "Âge", value: facts.age },
+    { label: "Édition", value: facts.edition || (facts.version === "Collector" ? "Collector" : "") }
+  ].filter((field) => field.value);
 }

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { jerseyFacts, jerseyLine, jerseySlug, jerseyTitle, readKit } from "../lib/jersey-facts.ts";
+import { jerseyFacts, jerseyFields, jerseyLine, jerseySlug, jerseyTitle, readKit } from "../lib/jersey-facts.ts";
 
 const read = (name, metadata = {}, extra = {}) => jerseyFacts({ name, metadata, ...extra });
 
@@ -46,7 +46,7 @@ test("an unknown version keeps its own label", () => {
 });
 
 test("Spécial is the section, never a word of the title", () => {
-  const dior = read("Maillot PSG Dior", { club: "PSG", version: "Spécial", saison: "2024/25" });
+  const dior = read("Maillot PSG Dior", { club: "PSG", version: "Spécial", saison: "2024/25", edition: "Dior" });
   assert.equal(dior.kit, null);
   assert.equal(dior.kitLabel, "Dior");
   assert.equal(jerseyTitle(dior), "Maillot PSG Dior 2024/25");
@@ -77,15 +77,37 @@ test("the dashboard's saved values read back, accents or not", () => {
   for (const version of ["Spécial", "special", "Spéciale", "Spéciaux", "Édition spéciale"]) {
     assert.equal(read("Maillot Arsenal", { club: "Arsenal", version }).kit, null, version);
   }
-  assert.equal(read("Maillot PSG Dior", { team: "PSG", kit: "special" }).kitLabel, "Dior");
+  assert.equal(read("Maillot PSG", { team: "PSG", kit: "special" }).kit, null);
   assert.equal(readKit("Spécial"), null);
 });
 
-test("an edition needs the name to be about the team", () => {
-  assert.equal(read("Fourteen", { club: "Cameroun", version: "Spécial" }).kitLabel, "");
-  assert.equal(read("Maillot Réal Madrid Gardien", { club: "Real Madrid", version: "Spécial" }).kitLabel, "Gardien");
-  assert.equal(read("Maillot Manchester United Legends", { club: "Manchester United", version: "Spécial" }).kitLabel, "Legends");
-  assert.equal(read("Maillot Manchester City", { club: "Manchester United", version: "Spécial" }).kitLabel, "");
+test("with a club in metadata, the name no longer describes the jersey", () => {
+  const facts = read("Maillot PSG Dior Extérieur Collector 2024/25 enfant 3-10 ans", { club: "PSG", version: "Spécial" });
+  assert.equal(facts.kitLabel, "");
+  assert.equal(facts.season, "");
+  assert.equal(facts.audience, "");
+  assert.equal(facts.version, "Pro");
+  assert.equal(jerseyTitle(facts), "Maillot PSG");
+  assert.equal(read("Maillot PSG Domicile", { club: "PSG" }).kit, null);
+  assert.equal(jerseyFacts({ name: "Maillot PSG", sku: "PSG-COLLECTOR", metadata: { club: "PSG" } }).version, "Pro");
+  assert.equal(jerseyFacts({ name: "Maillot PSG", tags: ["ligue 1"], metadata: { club: "PSG" } }).competition, "");
+});
+
+test("an edition goes after a known version, and collector lives in metadata", () => {
+  const facts = read("Maillot PSG", { club: "PSG", version: "Domicile", saison: "2024/25", edition: "Ligue des Champions" });
+  assert.equal(facts.kit, "Domicile");
+  assert.equal(jerseyTitle(facts), "Maillot PSG Domicile Ligue des Champions 2024/25");
+  assert.equal(jerseySlug(facts), "psg-domicile-ligue-des-champions-2024-25");
+  assert.equal(read("Maillot PSG", { club: "PSG", version: "Domicile", collector: true }).version, "Collector");
+  assert.equal(jerseyTitle(read("Maillot PSG", { club: "PSG", version: "Gardien", edition: "Dior" })), "Maillot PSG Gardien Dior");
+});
+
+test("the order fields speak the words of the SSS product form", () => {
+  const fields = (metadata) => Object.fromEntries(jerseyFields(read("Maillot", metadata)).map((f) => [f.label, f.value]));
+  assert.deepEqual(fields({ club: "Arsenal", version: "3ème", saison: "2024/25" }), { Club: "Arsenal", Version: "3ème", Saison: "2024/25" });
+  assert.deepEqual(fields({ club: "PSG", version: "Spécial", saison: "2024/25", edition: "Dior" }), { Club: "PSG", Version: "Spécial", Saison: "2024/25", Édition: "Dior" });
+  assert.deepEqual(fields({ club: "Cameroun", version: "Spécial", age: "3-10 ans" }), { Club: "Cameroun", Version: "Spécial", Âge: "3-10 ans" });
+  assert.deepEqual(fields({ club: "PSG" }), { Club: "PSG" });
 });
 
 test("no version stays unknown instead of Domicile", () => {

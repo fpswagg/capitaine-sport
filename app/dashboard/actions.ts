@@ -4,7 +4,7 @@ import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { slugify, type Kit } from "@/lib/catalog";
-import { readKit } from "@/lib/jersey-facts";
+import { jerseyFacts, readKit } from "@/lib/jersey-facts";
 import {
   actionDash,
   api,
@@ -39,7 +39,6 @@ function refreshSite() {
 // ── Jerseys ──────────────────────────────────────────────────────────────────
 
 const KIT_WORD: Record<Kit, string> = { Domicile: "Domicile", Extérieur: "Extérieur", Troisième: "3ème" };
-const KIT_KEY: Record<Kit, string> = { Domicile: "domicile", Extérieur: "exterieur", Troisième: "troisieme" };
 
 /** "2024/25", "24-25", "2024-2025" → "2024/25". */
 function cleanSeason(value: string): string {
@@ -48,8 +47,20 @@ function cleanSeason(value: string): string {
 }
 
 /** The name of the product: "Maillot Chelsea Extérieur 2024/25", "Maillot Cameroun enfant 3-10 ans". */
-function jerseyName(team: string, kitWord: string, season: string, audience: string) {
-  return ["Maillot", team, kitWord, season, audience].filter(Boolean).join(" ").slice(0, 160);
+function jerseyName(team: string, details: string[]) {
+  return ["Maillot", team, ...details].filter(Boolean).join(" ").slice(0, 160);
+}
+
+/** The jersey's description, under the keys of the SSS product form. An empty field leaves metadata. */
+function jerseyMetadata(before: Raw, fields: Record<string, string | boolean>): Raw {
+  // team, kit and season are the older names of club, version and saison.
+  const metadata: Raw = { ...before };
+  for (const key of ["team", "kit", "season"]) delete metadata[key];
+  for (const [key, value] of Object.entries(fields)) {
+    if (value) metadata[key] = value;
+    else delete metadata[key];
+  }
+  return metadata;
 }
 
 async function uploadPhotos(ctx: DashContext, files: File[], baseName: string) {
@@ -89,6 +100,8 @@ export async function saveJersey(_prev: FormState, fd: FormData): Promise<FormSt
     // Domicile, Extérieur, Troisième or Spécial: anything else on a kit is Spécial.
     const kit = readKit(field(fd, "kit"));
     const season = cleanSeason(field(fd, "season"));
+    const age = field(fd, "age").replace(/\s+/g, " ").slice(0, 40);
+    const edition = field(fd, "edition").replace(/\s+/g, " ").slice(0, 60);
     const collector = fd.get("collector") === "on";
     const competition = field(fd, "competition").slice(0, 60);
     const description = field(fd, "description").slice(0, 2000);
@@ -103,24 +116,22 @@ export async function saveJersey(_prev: FormState, fd: FormData): Promise<FormSt
 
     const before = id ? await dashJersey(ctx, id) : null;
     if (id && !before) return { error: "Ce maillot n'existe plus." };
-    // A special edition is not called "Spécial" in its name: it keeps what it says ("Dior").
-    const edition = before && !before.kit ? before.kitLabel : "";
-    const name = jerseyName(team, kit ? KIT_WORD[kit] : edition, season, before?.audience ?? "");
+    // Spécial is a section, not a word of the name: "Maillot PSG Dior 2024/25".
+    const audience = jerseyFacts({ metadata: { club: team, age } }).audience;
+    const name = jerseyName(team, [kit ? KIT_WORD[kit] : "", edition, season, audience]);
     if ((before?.images.length ?? 0) + photos.length > MAX_PHOTOS) return { error: `${MAX_PHOTOS} photos maximum par maillot.` };
 
     const tags = (before?.tags ?? []).filter((t) => t.toLowerCase() !== "collector");
     if (collector) tags.unshift("collector");
-    // The catalog reads the SSS form's keys first (club, version, saison), so both are kept in step.
-    const metadata: Raw = {
-      ...(before?.meta ?? {}),
+    const metadata = jerseyMetadata(before?.meta ?? {}, {
       club: team,
       version: kit ? KIT_WORD[kit] : "Spécial",
       saison: season,
-      team,
-      kit: kit ? KIT_KEY[kit] : "special",
-      season,
+      age,
+      edition,
       competition,
-    };
+      collector,
+    });
 
     const uploaded = await uploadPhotos(ctx, photos, name);
     const images = [...(before?.images ?? []), ...uploaded];

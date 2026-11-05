@@ -25,13 +25,13 @@ L'application OAuth doit être limitée à la boutique Capitaine Sport dans SSS.
 
 ## Domicile / Extérieur / Spéciaux
 
-Le site lit chaque produit SSS dans cet ordre (`lib/jersey-facts.ts`) :
+Tout ce qui décrit un maillot vit dans `metadata` du produit SSS (`lib/jersey-facts.ts`) : `club`, `version`, `saison`, `age`, `edition`, `competition`, `collector`. Tous ces champs se modifient depuis le dashboard du site.
 
-1. les champs du formulaire SSS : `metadata.club`, `version`, `saison`, `age`
-2. les anciennes clés : `metadata.team`, `kit`, `season`
-3. les tags, le nom du produit, puis le SKU (seulement domicile / extérieur)
+Dès que `metadata.club` existe, le nom, les tags et le SKU ne décrivent plus le maillot : un champ vidé reste vide. Sans `club`, le site lit encore le nom, les tags et le SKU. Les anciennes clés `team`, `kit` et `season` restent lues, et disparaissent au premier enregistrement depuis le dashboard.
 
-Version `Domicile` → section Domicile ; `Extérieur` et `3ème` → section Extérieur ; `Spécial`, une autre version ou aucune version → section Spéciaux. Le mot « Spécial » n'apparaît jamais dans le titre : le titre garde l'édition (`metadata.edition`, sinon ce que le nom ajoute après le club, ex. « Maillot PSG Dior »). Un `age` donne un maillot enfant, jamais présenté comme « Pro ».
+Le bloc de commande de la fiche et le message WhatsApp reprennent les libellés du formulaire SSS : Club, Version, Saison, Âge, Édition.
+
+Version `Domicile` → section Domicile ; `Extérieur` et `3ème` → section Extérieur ; `Spécial`, une autre version ou aucune version → section Spéciaux. Le mot « Spécial » n'apparaît jamais dans le titre : le titre garde `metadata.edition` (« Maillot PSG Dior »). Un `age` donne un maillot enfant, jamais présenté comme « Pro ».
 
 Les adresses des maillots existants sont figées par id dans `data/jersey-slugs.json` : renommer un produit ne les casse pas. Un nouveau produit reçoit une adresse calculée.
 

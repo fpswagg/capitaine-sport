@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { jerseyFacts, type JerseyFacts } from "@/lib/catalog";
 import { config } from "@/lib/config";
+import { jerseyDetails } from "@/lib/jersey-facts";
 import { readSiteTexts, type SiteTexts } from "@/lib/site";
 import { getAccessToken, getSession, safeNext, type SssBusiness, type SssSession } from "@/lib/sss-auth";
 import { today } from "@/lib/stats";
@@ -362,8 +363,8 @@ export function when(iso: string): string {
   return d.toLocaleDateString("fr-FR", { timeZone: "Africa/Douala", day: "numeric", month: "short", year: day.slice(0, 4) === today().slice(0, 4) ? undefined : "numeric" });
 }
 
-export function jerseyTitle(j: Pick<DashJersey, "team" | "kitLabel" | "season" | "audience" | "name">): string {
+export function jerseyTitle(j: Pick<DashJersey, "team" | "kitLabel" | "edition" | "season" | "audience" | "name">): string {
   if (!j.team) return j.name;
-  const details = [j.kitLabel, j.season, j.audience].filter(Boolean).join(" ");
+  const details = [jerseyDetails(j), j.season, j.audience].filter(Boolean).join(" ");
   return details ? `${j.team} · ${details}` : j.team;
 }
