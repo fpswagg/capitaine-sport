@@ -45,6 +45,49 @@ test("an unknown version keeps its own label", () => {
   assert.equal(jerseyLine(keeper), "Maillot Pro Gardien 2024/25");
 });
 
+test("Spécial is the section, never a word of the title", () => {
+  const dior = read("Maillot PSG Dior", { club: "PSG", version: "Spécial", saison: "2024/25" });
+  assert.equal(dior.kit, null);
+  assert.equal(dior.kitLabel, "Dior");
+  assert.equal(jerseyTitle(dior), "Maillot PSG Dior 2024/25");
+  assert.equal(jerseySlug(dior), "psg-dior-2024-25");
+
+  const kids = read("Fourteen enfant disponible 3-10 ans", { club: "Cameroun", version: "Spécial", age: "3-10 ans" });
+  assert.equal(kids.kit, null);
+  assert.equal(jerseyTitle(kids), "Maillot Cameroun enfant 3-10 ans");
+  assert.equal(jerseyLine(kids), "Maillot enfant 3-10 ans");
+
+  // The SSS form builds its name from the version, so the word can be in the name too.
+  const formName = read("Maillot PSG Spécial 2024/25", { club: "PSG", version: "Spécial", saison: "2024/25" });
+  assert.equal(jerseyTitle(formName), "Maillot PSG 2024/25");
+  assert.equal(jerseyTitle(read("Maillot PSG Spéciale")), "Maillot PSG");
+});
+
+test("an edition field wins over the name, and Spécial wins over a kit in the name", () => {
+  const facts = read("Maillot PSG Domicile", { club: "PSG", version: "Spécial", edition: "Dior" });
+  assert.equal(facts.kit, null);
+  assert.equal(jerseyTitle(facts), "Maillot PSG Dior");
+  assert.equal(jerseyTitle(read("Maillot PSG Domicile", { club: "PSG", version: "Spécial" })), "Maillot PSG");
+});
+
+test("the dashboard's saved values read back, accents or not", () => {
+  for (const version of ["3ème", "3eme", "Troisième", "troisieme", "3"]) {
+    assert.equal(read("Maillot Arsenal", { club: "Arsenal", version }).kitLabel, "Troisième");
+  }
+  for (const version of ["Spécial", "special", "Spéciale", "Spéciaux", "Édition spéciale"]) {
+    assert.equal(read("Maillot Arsenal", { club: "Arsenal", version }).kit, null, version);
+  }
+  assert.equal(read("Maillot PSG Dior", { team: "PSG", kit: "special" }).kitLabel, "Dior");
+  assert.equal(readKit("Spécial"), null);
+});
+
+test("an edition needs the name to be about the team", () => {
+  assert.equal(read("Fourteen", { club: "Cameroun", version: "Spécial" }).kitLabel, "");
+  assert.equal(read("Maillot Réal Madrid Gardien", { club: "Real Madrid", version: "Spécial" }).kitLabel, "Gardien");
+  assert.equal(read("Maillot Manchester United Legends", { club: "Manchester United", version: "Spécial" }).kitLabel, "Legends");
+  assert.equal(read("Maillot Manchester City", { club: "Manchester United", version: "Spécial" }).kitLabel, "");
+});
+
 test("no version stays unknown instead of Domicile", () => {
   assert.equal(read("Maillot Marseille").kit, null);
   assert.equal(read("Maillot Marseille").team, "Marseille");

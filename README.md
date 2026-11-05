@@ -23,23 +23,24 @@ Copie `.env.example` vers `.env.local`, puis renseigne les variables :
 
 L'application OAuth doit être limitée à la boutique Capitaine Sport dans SSS. N'utilise pas de clé business dans le navigateur.
 
-## Domicile / Extérieur
+## Domicile / Extérieur / Spéciaux
 
-SSS n'a pas de champ dédié. Le site détermine la catégorie dans cet ordre :
+Le site lit chaque produit SSS dans cet ordre (`lib/jersey-facts.ts`) :
 
-1. attribut du produit `side` / `kit` (ex. `exterieur`)
-2. **tags** : `domicile`, `home`, `int` → Domicile ; `exterieur`, `away`, `ext`, `third` → Extérieur
-3. nom de la catégorie SSS
-4. suffixe du SKU (`arsenal-ext`, `psg-int`) — même convention qu'avant
-5. le nom du produit (« Maillot Extérieur … »)
+1. les champs du formulaire SSS : `metadata.club`, `version`, `saison`, `age`
+2. les anciennes clés : `metadata.team`, `kit`, `season`
+3. les tags, le nom du produit, puis le SKU (seulement domicile / extérieur)
 
-Sans indice, le maillot est classé **Domicile**. Le tag `collector` donne la version Collector ; `attributes.team` et `attributes.competition` sont utilisés s'ils existent.
+Version `Domicile` → section Domicile ; `Extérieur` et `3ème` → section Extérieur ; `Spécial`, une autre version ou aucune version → section Spéciaux. Le mot « Spécial » n'apparaît jamais dans le titre : le titre garde l'édition (`metadata.edition`, sinon ce que le nom ajoute après le club, ex. « Maillot PSG Dior »). Un `age` donne un maillot enfant, jamais présenté comme « Pro ».
+
+Les adresses des maillots existants sont figées par id dans `data/jersey-slugs.json` : renommer un produit ne les casse pas. Un nouveau produit reçoit une adresse calculée.
 
 ## Scripts
 
 ```bash
 npm run dev
 npm run typecheck
+npm test
 npm run build
 ```
 

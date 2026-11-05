@@ -4,8 +4,8 @@
 //
 // Reading order: the fields of the SSS product form (metadata.club, version,
 // saison, age), then the keys this site's dashboard used to write (team, kit,
-// season), then the product name. Nothing is guessed when nothing is said: a
-// version the site does not know ("Dior", "Gardien") or no version at all stays
+// season), then the product name. Nothing is guessed when nothing is said: the
+// version "Spécial", any other version ("Gardien") or no version at all stays
 // out of Domicile / Extérieur.
 
 export type SssProduct = Record<string, unknown>;
@@ -14,9 +14,9 @@ export type Kit = "Domicile" | "Extérieur" | "Troisième";
 
 export type JerseyFacts = {
   team: string;
-  /** Known kit, or null when the version is something else or unknown. */
+  /** Known kit, or null for a special edition or an unknown version. */
   kit: Kit | null;
-  /** What the shop calls the version: "Domicile", "Troisième", "Dior", or "". */
+  /** What the title says about the version: "Domicile", "Troisième", "Dior", or "" (never "Spécial"). */
   kitLabel: string;
   season: string;
   /** "enfant 3-10 ans", "enfant", or "" for an adult jersey. */
@@ -72,6 +72,8 @@ export function readKit(value: string): Kit | null {
   return null;
 }
 
+const isSpecialWord = (value: string) => /^(edition )?(speciale?s?|speciaux)$/.test(normalize(value));
+
 const AGE_PATTERN = /(^|[^\d])(\d{1,2}\s*(?:-|–|à|a)\s*\d{1,2}|\d{1,2})\s*ans(?=[^a-zà-ÿ]|$)/i;
 const KIDS_PATTERN = /(^|\s)(enfants?|kids?|juniors?|b[ée]b[ée]s?)(?=\s|$)/gi;
 const SEASON_PATTERN = /(^|[^\d])((?:20)?(\d{2})\s*[/-]\s*(?:20)?(\d{2}))(?=[^\d]|$)/g;
@@ -100,11 +102,21 @@ function parsePhrase(value: string) {
 // "Maillot Manchester City 3ème" -> "Manchester City"
 function teamFromName(rest: string, fallback: string) {
   const team = rest
-    .replace(/(^|\s)(maillots?|pro|collector|disponibles?|domicile|home|away|third|troisi[èe]me|ext[ée]rieur|int[ée]rieur)(?=\s|$)/gi, " ")
+    .replace(/(^|\s)(maillots?|pro|collector|disponibles?|sp[ée]ciale?s?|sp[ée]ciaux|domicile|home|away|third|troisi[èe]me|ext[ée]rieur|int[ée]rieur)(?=\s|$)/gi, " ")
     .replace(/(^|\s)3(e|ème|eme|rd)?(?=\s|$)/gi, " ")
     .replace(/\s{2,}/g, " ")
     .trim();
   return team || fallback;
+}
+
+// "Maillot PSG Dior" with club PSG -> "Dior". Only when the name is about that
+// team: "Fourteen enfant" for Cameroun says nothing we can put after the team.
+function editionFromName(rest: string, team: string) {
+  const words = teamFromName(rest, "").split(" ").filter(Boolean);
+  const teamWords = normalize(team).split(/\s+/);
+  const start = words.findIndex((_, index) => teamWords.every((word, offset) => normalize(words[index + offset] ?? "") === word));
+  if (start === -1) return "";
+  return words.filter((_, index) => index < start || index >= start + teamWords.length).join(" ");
 }
 
 function formatAudience(age: string, kids: boolean) {
@@ -125,24 +137,28 @@ export function jerseyFacts(product: SssProduct): JerseyFacts {
   // The shop's own version field, unless it really holds something else.
   const explicit = parsePhrase(text(attributes.version) || text(attributes.kit) || text(product.side) || text(attributes.side));
   const statedLine = normalize(explicit.rest);
-  const explicitLabel = statedLine === "pro" || statedLine === "collector" ? "" : explicit.rest;
+  const explicitLabel = statedLine === "pro" || statedLine === "collector" || isSpecialWord(explicit.rest) ? "" : explicit.rest;
+  const team = text(attributes.club) || text(attributes.team) || teamFromName(name.rest, rawName);
 
   let kit: Kit | null = readKit(explicitLabel);
   let kitLabel = explicitLabel;
   if (kit && Object.hasOwn(KIT_WORDS, normalize(explicitLabel))) kitLabel = kit;
-  if (!explicitLabel) {
+  if (isSpecialWord(explicit.rest)) {
+    kit = null;
+  } else if (!explicitLabel) {
     // A number at the end of a SKU is a duplicate counter, not a third kit, so
     // the SKU only speaks for home and away (and SSS truncates it, so it comes last).
     const skuKit = readKit(sku);
     kit = readKit(tags.join(" ")) ?? readKit(name.rest) ?? (skuKit === "Troisième" ? null : skuKit);
     kitLabel = kit ?? "";
   }
+  if (!kit && !kitLabel) kitLabel = text(attributes.edition) || editionFromName(name.rest, team);
 
   const audience = formatAudience(text(attributes.age) || explicit.age || name.age, explicit.kids || name.kids);
   const collector = statedLine === "collector" || tags.includes("collector") || /collector/i.test(`${rawName} ${sku}`);
 
   return {
-    team: text(attributes.club) || text(attributes.team) || teamFromName(name.rest, rawName),
+    team,
     kit,
     kitLabel,
     season: text(attributes.saison) || text(attributes.season) || name.season,

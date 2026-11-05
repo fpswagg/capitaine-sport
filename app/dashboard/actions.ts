@@ -48,8 +48,8 @@ function cleanSeason(value: string): string {
 }
 
 /** The name of the product: "Maillot Chelsea Extérieur 2024/25", "Maillot Cameroun enfant 3-10 ans". */
-function jerseyName(team: string, version: string, season: string, audience: string) {
-  return ["Maillot", team, version, season, audience].filter(Boolean).join(" ").slice(0, 160);
+function jerseyName(team: string, kitWord: string, season: string, audience: string) {
+  return ["Maillot", team, kitWord, season, audience].filter(Boolean).join(" ").slice(0, 160);
 }
 
 async function uploadPhotos(ctx: DashContext, files: File[], baseName: string) {
@@ -86,9 +86,8 @@ export async function saveJersey(_prev: FormState, fd: FormData): Promise<FormSt
     const ctx = await actionDash();
     const id = field(fd, "id");
     const team = field(fd, "team").replace(/\s+/g, " ");
-    // The list also offers the shop's own version ("Dior") and no version at all.
-    const kitInput = field(fd, "kit").slice(0, 40);
-    const kit = readKit(kitInput);
+    // Domicile, Extérieur, Troisième or Spécial: anything else on a kit is Spécial.
+    const kit = readKit(field(fd, "kit"));
     const season = cleanSeason(field(fd, "season"));
     const collector = fd.get("collector") === "on";
     const competition = field(fd, "competition").slice(0, 60);
@@ -104,8 +103,9 @@ export async function saveJersey(_prev: FormState, fd: FormData): Promise<FormSt
 
     const before = id ? await dashJersey(ctx, id) : null;
     if (id && !before) return { error: "Ce maillot n'existe plus." };
-    const version = kit ? KIT_WORD[kit] : kitInput;
-    const name = jerseyName(team, version, season, before?.audience ?? "");
+    // A special edition is not called "Spécial" in its name: it keeps what it says ("Dior").
+    const edition = before && !before.kit ? before.kitLabel : "";
+    const name = jerseyName(team, kit ? KIT_WORD[kit] : edition, season, before?.audience ?? "");
     if ((before?.images.length ?? 0) + photos.length > MAX_PHOTOS) return { error: `${MAX_PHOTOS} photos maximum par maillot.` };
 
     const tags = (before?.tags ?? []).filter((t) => t.toLowerCase() !== "collector");
@@ -114,10 +114,10 @@ export async function saveJersey(_prev: FormState, fd: FormData): Promise<FormSt
     const metadata: Raw = {
       ...(before?.meta ?? {}),
       club: team,
-      version,
+      version: kit ? KIT_WORD[kit] : "Spécial",
       saison: season,
       team,
-      kit: kit ? KIT_KEY[kit] : kitInput,
+      kit: kit ? KIT_KEY[kit] : "special",
       season,
       competition,
     };
