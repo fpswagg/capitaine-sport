@@ -28,16 +28,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const images = jersey.imageUrl ? [{ url: jersey.imageUrl, alt: `${jersey.name} ${jersey.team}` }] : undefined;
+  const images = jersey.imageUrl ? [{ url: jersey.imageUrl, alt: jersey.title }] : undefined;
 
   return {
-    title: `${jersey.name} ${jersey.team}`,
-    description: `${jersey.summary} Prix: ${formatPrice(jersey.price)}. Version ${jersey.version}, commande disponible sur WhatsApp.`,
+    title: jersey.title,
+    description: `${jersey.summary} Prix: ${formatPrice(jersey.price)}. ${jersey.version ? `Version ${jersey.version}, commande` : "Commande"} disponible sur WhatsApp.`,
     alternates: {
       canonical: `/maillots/${jersey.slug}`
     },
     openGraph: {
-      title: `${jersey.name} ${jersey.team}`,
+      title: jersey.title,
       description: `${jersey.summary} Prix: ${formatPrice(jersey.price)}.`,
       url: `/maillots/${jersey.slug}`,
       siteName: site.brand,
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: "summary_large_image",
-      title: `${jersey.name} ${jersey.team}`,
+      title: jersey.title,
       description: `${jersey.summary} Prix: ${formatPrice(jersey.price)}.`,
       images: jersey.imageUrl ? [jersey.imageUrl] : undefined
     }
@@ -78,13 +78,13 @@ export default async function JerseyDetailPage({ params }: PageProps) {
           </div>
 
           <div className="detail-hero__visual">
-            <JerseyImage src={jersey.imageUrl} team={jersey.team} name={jersey.name} priority />
+            <JerseyImage src={jersey.imageUrl} title={jersey.title} priority />
             {jersey.inStock ? null : <span className="stock-badge stock-badge--lg">Rupture de stock</span>}
           </div>
 
           <div className="detail-hero__content">
             <p className="section-kicker">{[jersey.category, jersey.competition].filter(Boolean).join(" · ")}</p>
-            <h1 className="detail-title">{jersey.team} {jersey.name}</h1>
+            <h1 className="detail-title">{jersey.title}</h1>
             <p className="detail-summary">{jersey.summary}</p>
 
             <div className="detail-purchase">
@@ -113,7 +113,7 @@ export default async function JerseyDetailPage({ params }: PageProps) {
               <a href={getWhatsappUrl(shop, jersey)} className="btn btn--primary" target="_blank" rel="noreferrer" data-wa="order" data-product={jersey.id}>
                 Commander
               </a>
-              <AskCaptainButton message={`Le maillot ${jersey.team} ${jersey.name} est disponible en quelle taille ?`} />
+              <AskCaptainButton message={`Le ${jersey.title} est disponible en quelle taille ?`} />
             </aside>
           ) : (
             <aside className="order-card order-card--oos">
@@ -144,10 +144,18 @@ export default async function JerseyDetailPage({ params }: PageProps) {
                   <strong>{jersey.competition}</strong>
                 </div>
               ) : null}
-              <div>
-                <span>Version</span>
-                <strong>{jersey.version}</strong>
-              </div>
+              {jersey.version ? (
+                <div>
+                  <span>Version</span>
+                  <strong>{jersey.version}</strong>
+                </div>
+              ) : null}
+              {jersey.audience ? (
+                <div>
+                  <span>Pour</span>
+                  <strong>{jersey.audience}</strong>
+                </div>
+              ) : null}
               <div>
                 <span>Prix</span>
                 <strong>{formatPrice(jersey.price)}</strong>

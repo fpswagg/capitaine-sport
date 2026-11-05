@@ -2,15 +2,14 @@ import Image from "next/image";
 
 type JerseyImageProps = {
   src: string | null;
-  team: string;
-  name: string;
+  title: string;
   priority?: boolean;
 };
 
-export function JerseyImage({ src, team, name, priority = false }: JerseyImageProps) {
+export function JerseyImage({ src, title, priority = false }: JerseyImageProps) {
   if (!src) {
     return (
-      <div className="jersey-image jersey-image--empty" role="img" aria-label={`Maillot ${team} ${name}`}>
+      <div className="jersey-image jersey-image--empty" role="img" aria-label={title}>
         <span>CS</span>
       </div>
     );
@@ -20,7 +19,7 @@ export function JerseyImage({ src, team, name, priority = false }: JerseyImagePr
     <div className="jersey-image">
       <Image
         src={src}
-        alt={`Maillot ${team} ${name}`}
+        alt={title}
         fill
         sizes="(max-width: 768px) 90vw, (max-width: 1200px) 42vw, 420px"
         priority={priority}

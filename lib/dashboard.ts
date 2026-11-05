@@ -186,7 +186,7 @@ export async function dashJerseys(ctx: DashContext): Promise<DashJersey[]> {
     cursor = Array.isArray(raw) ? "" : str(obj(raw).nextCursor);
     if (!cursor) break;
   }
-  return out.map(toDashJersey).sort((a, b) => a.team.localeCompare(b.team, "fr") || a.kit.localeCompare(b.kit, "fr"));
+  return out.map(toDashJersey).sort((a, b) => a.team.localeCompare(b.team, "fr") || a.kitLabel.localeCompare(b.kitLabel, "fr"));
 }
 
 export async function dashJersey(ctx: DashContext, id: string): Promise<DashJersey | null> {
@@ -362,7 +362,8 @@ export function when(iso: string): string {
   return d.toLocaleDateString("fr-FR", { timeZone: "Africa/Douala", day: "numeric", month: "short", year: day.slice(0, 4) === today().slice(0, 4) ? undefined : "numeric" });
 }
 
-export function jerseyTitle(j: Pick<DashJersey, "team" | "kit" | "season" | "name">): string {
+export function jerseyTitle(j: Pick<DashJersey, "team" | "kitLabel" | "season" | "audience" | "name">): string {
   if (!j.team) return j.name;
-  return `${j.team} · ${j.kit}${j.season ? ` ${j.season}` : ""}`;
+  const details = [j.kitLabel, j.season, j.audience].filter(Boolean).join(" ");
+  return details ? `${j.team} · ${details}` : j.team;
 }

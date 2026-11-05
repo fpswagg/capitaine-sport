@@ -13,10 +13,10 @@ export function JerseyCard({ jersey }: JerseyCardProps) {
       <Link
         href={`/maillots/${jersey.slug}`}
         className="jersey-card__stretched-link"
-        aria-label={`Voir le maillot ${jersey.team} ${jersey.name}${jersey.inStock ? "" : " (rupture de stock)"}`}
+        aria-label={`Voir le ${jersey.title}${jersey.inStock ? "" : " (rupture de stock)"}`}
       />
       <div className="jersey-card__image-wrap">
-        <JerseyImage src={jersey.imageUrl} team={jersey.team} name={jersey.name} />
+        <JerseyImage src={jersey.imageUrl} title={jersey.title} />
         {jersey.inStock ? null : <span className="stock-badge">Rupture de stock</span>}
       </div>
       <div className="jersey-card__body">

@@ -4,6 +4,7 @@ import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { slugify, type Kit } from "@/lib/catalog";
+import { readKit } from "@/lib/jersey-facts";
 import {
   actionDash,
   api,
@@ -39,7 +40,6 @@ function refreshSite() {
 
 const KIT_WORD: Record<Kit, string> = { Domicile: "Domicile", Extérieur: "Extérieur", Troisième: "3ème" };
 const KIT_KEY: Record<Kit, string> = { Domicile: "domicile", Extérieur: "exterieur", Troisième: "troisieme" };
-const asKit = (value: string): Kit => (value === "Extérieur" || value === "Troisième" ? value : "Domicile");
 
 /** "2024/25", "24-25", "2024-2025" → "2024/25". */
 function cleanSeason(value: string): string {
@@ -47,9 +47,9 @@ function cleanSeason(value: string): string {
   return m ? `20${m[1]}/${m[2]}` : value.replace(/\s+/g, " ").slice(0, 12);
 }
 
-/** The name the catalog reads back: "Maillot Chelsea Extérieur 2024/25". */
-function jerseyName(team: string, kit: Kit, season: string) {
-  return `Maillot ${team} ${KIT_WORD[kit]}${season ? ` ${season}` : ""}`.slice(0, 160);
+/** The name of the product: "Maillot Chelsea Extérieur 2024/25", "Maillot Cameroun enfant 3-10 ans". */
+function jerseyName(team: string, version: string, season: string, audience: string) {
+  return ["Maillot", team, version, season, audience].filter(Boolean).join(" ").slice(0, 160);
 }
 
 async function uploadPhotos(ctx: DashContext, files: File[], baseName: string) {
@@ -86,7 +86,9 @@ export async function saveJersey(_prev: FormState, fd: FormData): Promise<FormSt
     const ctx = await actionDash();
     const id = field(fd, "id");
     const team = field(fd, "team").replace(/\s+/g, " ");
-    const kit = asKit(field(fd, "kit"));
+    // The list also offers the shop's own version ("Dior") and no version at all.
+    const kitInput = field(fd, "kit").slice(0, 40);
+    const kit = readKit(kitInput);
     const season = cleanSeason(field(fd, "season"));
     const collector = fd.get("collector") === "on";
     const competition = field(fd, "competition").slice(0, 60);
@@ -100,14 +102,25 @@ export async function saveJersey(_prev: FormState, fd: FormData): Promise<FormSt
     if (typeof photos === "string") return { error: photos };
     if (photos.length > MAX_PHOTOS) return { error: `Ajoute au maximum ${MAX_PHOTOS} photos par envoi.` };
 
-    const name = jerseyName(team, kit, season);
     const before = id ? await dashJersey(ctx, id) : null;
     if (id && !before) return { error: "Ce maillot n'existe plus." };
+    const version = kit ? KIT_WORD[kit] : kitInput;
+    const name = jerseyName(team, version, season, before?.audience ?? "");
     if ((before?.images.length ?? 0) + photos.length > MAX_PHOTOS) return { error: `${MAX_PHOTOS} photos maximum par maillot.` };
 
     const tags = (before?.tags ?? []).filter((t) => t.toLowerCase() !== "collector");
     if (collector) tags.unshift("collector");
-    const metadata: Raw = { ...(before?.meta ?? {}), team, kit: KIT_KEY[kit], season, competition };
+    // The catalog reads the SSS form's keys first (club, version, saison), so both are kept in step.
+    const metadata: Raw = {
+      ...(before?.meta ?? {}),
+      club: team,
+      version,
+      saison: season,
+      team,
+      kit: kit ? KIT_KEY[kit] : kitInput,
+      season,
+      competition,
+    };
 
     const uploaded = await uploadPhotos(ctx, photos, name);
     const images = [...(before?.images ?? []), ...uploaded];

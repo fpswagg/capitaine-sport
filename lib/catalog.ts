@@ -1,15 +1,26 @@
 import { cache } from "react";
 
+import frozenSlugs from "@/data/jersey-slugs.json";
 import siteData from "@/data/site.json";
+import { jerseyFacts, jerseyLine, jerseySlug, jerseyTitle, normalize, slugify, text, type SssProduct } from "@/lib/jersey-facts";
 import { isSssConfigured, sssStoreRequest } from "@/lib/sss";
+
+export { jerseyFacts, slugify };
+export type { JerseyFacts, Kit } from "@/lib/jersey-facts";
 
 export type Jersey = {
   id: string;
   slug: string;
   team: string;
+  /** Full title, for headings and messages: "Maillot Chelsea Extérieur 2024/25". */
+  title: string;
+  /** The line under the team on a card: "Maillot Pro Extérieur 2024/25". */
   name: string;
-  category: "Domicile" | "Extérieur";
-  version: "Pro" | "Collector";
+  /** Third kits are sold as Extérieur; a version the site does not know is Spéciaux. */
+  category: "Domicile" | "Extérieur" | "Spéciaux";
+  version: "Pro" | "Collector" | null;
+  /** "enfant 3-10 ans", or "" for an adult jersey. */
+  audience: string;
   competition: string;
   price: number;
   imageUrl: string | null;
@@ -21,41 +32,19 @@ export type SiteContent = typeof siteData;
 
 export const site = siteData satisfies SiteContent;
 
-export const categoryOrder: Jersey["category"][] = ["Domicile", "Extérieur"];
+export const categoryOrder: Jersey["category"][] = ["Domicile", "Extérieur", "Spéciaux"];
 
-// The SSS product payload is loosely typed on purpose: fields vary with how the
-// business filled its catalog, so every read goes through a tolerant accessor.
-type SssProduct = Record<string, unknown>;
+// Product id -> slug, frozen so published URLs survive a change of name or fields.
+const SLUGS: Record<string, string> = frozenSlugs;
 
 type ProductPage = SssProduct[] | { items?: SssProduct[]; products?: SssProduct[]; nextCursor?: string | null; cursor?: string | null };
 
 const PAGE_LIMIT = 100;
 const MAX_PAGES = 20;
 
-function text(value: unknown): string {
-  if (typeof value === "string") return value.trim();
-  if (typeof value === "number") return String(value);
-  if (value && typeof value === "object" && "name" in value) return text((value as { name: unknown }).name);
-  return "";
-}
-
 function num(value: unknown): number {
   const parsed = typeof value === "number" ? value : Number.parseFloat(String(value ?? "").replace(/[^\d.]/g, ""));
   return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function list(value: unknown): string[] {
-  if (Array.isArray(value)) return value.map(text).filter(Boolean);
-  if (typeof value === "string") return value.split(/[,;|]/).map((part) => part.trim()).filter(Boolean);
-  return [];
-}
-
-function normalize(value: string) {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
-
-export function slugify(value: string) {
-  return normalize(value).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
 function pickImage(product: SssProduct): string | null {
@@ -77,67 +66,6 @@ function pickImage(product: SssProduct): string | null {
   return null;
 }
 
-// Domicile vs Extérieur is not a first-class SSS field. We read, in order of
-// reliability: an explicit attribute, the tags, the product name
-// ("Maillot Chelsea Extérieur 2024/25", "Maillot Real Madrid 3"), then the SKU
-// (same `-ext` / `-int` convention as the original catalog; SSS truncates
-// SKUs, so it comes after the name). Anything that says nothing is Domicile.
-// Third kits ("3ème", "third", trailing "3") are sold as Extérieur.
-const THIRD_PATTERN = /(^|[^a-z0-9])(3(e|eme|rd)?|third|troisieme)([^a-z0-9]|$)/;
-const AWAY_PATTERN = /(^|[^a-z])(ext|exterieur|away|alternatif)([^a-z]|$)/;
-const HOME_PATTERN = /(^|[^a-z])(int|interieur|domicile|home)([^a-z]|$)/;
-const SEASON_PATTERN = /\b(20)?\d{2}\s*[/-]\s*(20)?\d{2}\b/;
-
-export type Kit = "Domicile" | "Extérieur" | "Troisième";
-
-function detectKit(product: SssProduct, name: string): Kit {
-  const attributes = (product.attributes ?? product.metadata ?? product.custom ?? {}) as SssProduct;
-  const sources = [
-    text(product.side) || text(attributes.side) || text(attributes.kit),
-    list(product.tags).join(" "),
-    name.replace(SEASON_PATTERN, " "),
-    text(product.sku).replace(/[-_]/g, " ")
-  ];
-
-  for (const [index, source] of sources.entries()) {
-    const value = normalize(source);
-    if (!value) continue;
-    // A bare trailing number in a SKU is a duplicate counter, not a kit.
-    if (index !== 3 && THIRD_PATTERN.test(value)) return "Troisième";
-    if (AWAY_PATTERN.test(value)) return "Extérieur";
-    if (HOME_PATTERN.test(value)) return "Domicile";
-  }
-
-  return "Domicile";
-}
-
-// "Maillot Manchester City 3ème 2024/25" -> "Manchester City"
-function extractTeam(name: string) {
-  const team = name
-    .replace(SEASON_PATTERN, " ")
-    .replace(/(^|\s)(maillots?|pro|collector|domicile|home|away|third|troisi[èe]me|ext[ée]rieur|int[ée]rieur)(?=\s|$)/gi, " ")
-    .replace(/(^|\s)3(e|ème|eme|rd)?(?=\s|$)/gi, " ")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-  return team || name;
-}
-
-/** What the catalog reads from one SSS product (also shown in the dashboard). */
-export type JerseyFacts = { team: string; kit: Kit; season: string; version: Jersey["version"]; competition: string };
-
-export function jerseyFacts(product: SssProduct): JerseyFacts {
-  const rawName = text(product.name) || text(product.title);
-  const attributes = (product.attributes ?? product.metadata ?? {}) as SssProduct;
-  const tags = list(product.tags).map(normalize);
-  return {
-    team: text(attributes.team) || extractTeam(rawName),
-    kit: detectKit(product, rawName),
-    season: text(attributes.season) || rawName.match(SEASON_PATTERN)?.[0].replace(/\s+/g, "") || "",
-    version: tags.includes("collector") || /collector/i.test(`${rawName} ${text(product.sku)}`) ? "Collector" : "Pro",
-    competition: text(attributes.competition) || text(attributes.league) || tags.find((tag) => !["collector", "pro"].includes(tag)) || ""
-  };
-}
-
 function toJersey(product: SssProduct): Jersey | null {
   const id = text(product.id) || text(product.sku);
   const rawName = text(product.name) || text(product.title);
@@ -147,26 +75,27 @@ function toJersey(product: SssProduct): Jersey | null {
   const status = normalize(text(product.status));
   if (status === "archived" || status === "draft" || status === "inactive") return null;
 
-  const { team, kit, season, version, competition } = jerseyFacts(product);
-  const category: Jersey["category"] = kit === "Domicile" ? "Domicile" : "Extérieur";
+  const facts = jerseyFacts(product);
+  const { team, kit, version, audience, competition } = facts;
+  const category: Jersey["category"] = kit === null ? "Spéciaux" : kit === "Domicile" ? "Domicile" : "Extérieur";
 
   const quantity = product.unlimitedStock === true ? null : (product.quantity ?? product.stock ?? product.onHand);
   const price = num(product.price ?? product.salePrice ?? product.unitPrice ?? product.sellingPrice);
-  const name = `Maillot ${version} ${kit}${season ? ` ${season}` : ""}`;
+  const title = jerseyTitle(facts);
 
   return {
     id,
-    slug: slugify(text(product.slug) || `${team}-${kit}${season ? `-${season}` : ""}`) || slugify(id),
+    slug: SLUGS[id] || slugify(text(product.slug)) || jerseySlug(facts) || slugify(id),
     team,
-    name,
+    title,
+    name: jerseyLine(facts),
     category,
     version,
+    audience,
     competition,
     price,
     imageUrl: pickImage(product),
-    summary:
-      text(product.description) ||
-      `Maillot ${version.toLowerCase()} ${kit.toLowerCase()} ${team}${price ? `, disponible à ${formatPrice(price)}` : ""}.`,
+    summary: text(product.description) || `${title}${price ? `, disponible à ${formatPrice(price)}` : ""}.`,
     inStock: quantity === undefined || quantity === null ? true : num(quantity) > 0
   };
 }
@@ -226,7 +155,7 @@ export function getCategories(jerseys: Jersey[]) {
 }
 
 export function getCategoryId(category: Jersey["category"]) {
-  return category === "Domicile" ? "domicile" : "exterieur";
+  return category === "Domicile" ? "domicile" : category === "Extérieur" ? "exterieur" : "speciaux";
 }
 
 export async function getRelatedJerseys(current: Jersey, limit = 4) {
@@ -245,8 +174,8 @@ export function getWhatsappUrl(shop: Pick<SiteContent, "whatsappNumber">, jersey
   const message = !jersey
     ? "Bonjour Capitaine Sport, je veux commander un maillot."
     : intent === "restock"
-      ? `Bonjour Capitaine Sport, prévenez-moi quand le ${jersey.name} ${jersey.team} sera de retour en stock.`
-      : `Bonjour Capitaine Sport, je veux commander le ${jersey.name} ${jersey.team} à ${formatPrice(jersey.price)}.`;
+      ? `Bonjour Capitaine Sport, prévenez-moi quand le ${jersey.title} sera de retour en stock.`
+      : `Bonjour Capitaine Sport, je veux commander le ${jersey.title} à ${formatPrice(jersey.price)}.`;
 
   return `https://wa.me/${shop.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
