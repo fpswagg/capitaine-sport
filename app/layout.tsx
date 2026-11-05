@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Dancing_Script, DM_Sans } from "next/font/google";
 
-import { site } from "@/lib/catalog";
+import { site, siteUrl } from "@/lib/catalog";
 import "./globals.css";
 import "./sss.css";
 
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   description:
     "Capitaine Sport propose des maillots pro domicile et extérieur, avec commande directe sur WhatsApp.",
-  metadataBase: new URL("https://capitaine-sport.com"),
+  metadataBase: new URL(siteUrl),
   keywords: [
     "Capitaine Sport",
     "maillots pro",

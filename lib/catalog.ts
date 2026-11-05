@@ -33,6 +33,9 @@ export type SiteContent = typeof siteData;
 
 export const site = siteData satisfies SiteContent;
 
+/** Public address of the site: canonical links, social previews, robots and sitemap. */
+export const siteUrl = "https://capitaine-sport.vercel.app";
+
 export const categoryOrder: Jersey["category"][] = ["Domicile", "Extérieur", "Spéciaux"];
 
 // Product id -> slug, frozen so published URLs survive a change of name or fields.
