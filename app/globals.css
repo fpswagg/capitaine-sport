@@ -971,15 +971,3 @@ a {
     font-size: 1.1rem;
   }
 }
-
-.promo-video {
-  display: flex;
-  justify-content: center;
-}
-
-.promo-video video {
-  width: min(100%, 360px);
-  aspect-ratio: 9 / 16;
-  border-radius: 16px;
-  background: #141311;
-}

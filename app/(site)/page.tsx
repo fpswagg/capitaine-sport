@@ -54,19 +54,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section section--compact">
-        <div className="container promo-video">
-          <video
-            controls
-            playsInline
-            preload="none"
-            poster="/pub-poster.jpg"
-            src="/pub.mp4"
-            aria-label="Pub Capitaine Sport"
-          />
-        </div>
-      </section>
-
       {jerseys.length === 0 ? (
         <section className="section section--compact">
           <div className="container empty-state">
